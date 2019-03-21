@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>HighAvailabilityModule.Algorithm</RootNamespace>
     <AssemblyName>HighAvailabilityModule.Algorithm</AssemblyName>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

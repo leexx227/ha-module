@@ -31,7 +31,7 @@ namespace HighAvailabilityModule.UnitTest
         {
             this.server = new InMemoryMembershipServer(Timeout);
             this.client = new InMemoryMembershipClient(this.server);
-            this.algo = new MembershipWithWitness(this.client, Interval, Tolerance);
+            this.algo = new MembershipWithWitness(this.client, Interval, Timeout);
         }
 
         [TestMethod]

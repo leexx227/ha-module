@@ -14,17 +14,19 @@
 
         private TimeSpan HeartBeatInterval { get; }
 
-        private int TimeoutTolerance { get; }
+        private TimeSpan HeartBeatTimeout { get; }
 
-        private HeartBeatEntry lastSeenHeartBeat = null;
+        private (HeartBeatEntry Entry, DateTime QueryTime) lastSeenHeartBeat;
 
-        public MembershipWithWitness(IMembershipClient client, TimeSpan heartBeatInterval, int timeoutTolerance)
+        private object heartbeatLock = new object();
+
+        public MembershipWithWitness(IMembershipClient client, TimeSpan heartBeatInterval, TimeSpan heartBeatTimeout)
         {
             this.Client = client;
             this.Client.OperationTimeout = heartBeatInterval;
             this.Uuid = client.GenerateUuid();
             this.HeartBeatInterval = heartBeatInterval;
-            this.TimeoutTolerance = timeoutTolerance;
+            this.HeartBeatTimeout = heartBeatTimeout;
         }
 
         public async Task RunAsync(Func<Task> onStartAsync, Func<Task> onErrorAsync)
@@ -37,64 +39,67 @@
 
         internal async Task GetPrimaryAsync()
         {
-            while (!this.RunningAsPrimary)
+            while (!this.RunningAsPrimary(DateTime.UtcNow))
             {
                 await Task.Delay(this.HeartBeatInterval);
-                try
-                {
-                    this.lastSeenHeartBeat = await this.Client.GetHeartBeatEntryAsync();
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceWarning($"[{nameof(this.GetPrimaryAsync)}] Error occured when getting heartbeat entry: {ex.ToString()}");
-                }
+                await this.CheckPrimaryAsync(DateTime.UtcNow);
 
                 if (!this.PrimaryUp)
                 {
-                    try
-                    {
-                        await this.Client.HeartBeatAsync(this.Uuid, this.lastSeenHeartBeat);
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.TraceWarning($"[{nameof(this.GetPrimaryAsync)}] Error occured when updating heartbeat entry: {ex.ToString()}");
-                    }
+                    await this.HeartBeatAsPrimaryAsync();
                 }
             }
         }
 
+        internal async Task CheckPrimaryAsync(DateTime now)
+        {
+            try
+            {
+                var entry = await this.Client.GetHeartBeatEntryAsync();
+                if (now > this.lastSeenHeartBeat.QueryTime)
+                {
+                    lock (this.heartbeatLock)
+                    {
+                        if (now > this.lastSeenHeartBeat.QueryTime)
+                        {
+                            this.lastSeenHeartBeat = (entry, now);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning($"Error occured when getting heartbeat entry: {ex.ToString()}");
+            }
+        }
+
+        internal async Task HeartBeatAsPrimaryAsync()
+        {
+            try
+            {
+                await this.Client.HeartBeatAsync(this.Uuid, this.lastSeenHeartBeat.Entry);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning($"Error occured when updating heartbeat entry: {ex.ToString()}");
+            }
+        }
 
         /// <summary>
         /// Checks if current process is primary process
         /// </summary>
         private async Task KeepPrimaryAsync()
         {
-            int retryCount = 0;
-
-            while (retryCount < this.TimeoutTolerance)
+            while (this.RunningAsPrimary(DateTime.UtcNow))
             {
-                this.Client.HeartBeatAsync(this.Uuid, this.lastSeenHeartBeat);
-
-                try
-                {
-                    this.lastSeenHeartBeat = await this.Client.GetHeartBeatEntryAsync();
-                    retryCount = 0;
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceWarning($"[{nameof(this.KeepPrimaryAsync)}] Error occured when getting heartbeat entry: {ex.ToString()}");
-                    retryCount++;
-                }
-
-                if (!this.RunningAsPrimary)
-                {
-                    return;
-                }
+                this.HeartBeatAsPrimaryAsync();
+                this.CheckPrimaryAsync(DateTime.UtcNow);
+                await Task.Delay(this.HeartBeatInterval);
             }
         }
 
-        private bool PrimaryUp => this.lastSeenHeartBeat != null && !this.lastSeenHeartBeat.IsEmpty;
+        private bool PrimaryUp => this.lastSeenHeartBeat != default && !this.lastSeenHeartBeat.Entry.IsEmpty;
 
-        private bool RunningAsPrimary => this.PrimaryUp && this.lastSeenHeartBeat.Uuid == this.Uuid;
+        private bool RunningAsPrimary(DateTime now) => this.PrimaryUp && this.lastSeenHeartBeat.Entry.Uuid == this.Uuid && now - this.lastSeenHeartBeat.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval);
     }
 }
