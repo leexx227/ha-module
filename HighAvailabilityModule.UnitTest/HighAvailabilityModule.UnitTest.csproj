@@ -12,4 +12,11 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HighAvailabilityModule.Algorithm\HighAvailabilityModule.Algorithm.csproj" />
+    <ProjectReference Include="..\HighAvailabilityModule.Client.InMemory\HighAvailabilityModule.Client.InMemory.csproj" />
+    <ProjectReference Include="..\HighAvailabilityModule.Interface\HighAvailabilityModule.Interface.csproj" />
+    <ProjectReference Include="..\HighAvailabilityModule.Server.InMemory\HighAvailabilityModule.Server.InMemory.csproj" />
+  </ItemGroup>
+
 </Project>

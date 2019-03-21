@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Threading;
     using System.Threading.Tasks;
 
     using HighAvailabilityModule.Interface;
@@ -30,13 +29,13 @@
 
         public async Task RunAsync(Func<Task> onStartAsync, Func<Task> onErrorAsync)
         {
-            await this.GetPrimary();
+            await this.GetPrimaryAsync();
             await onStartAsync();
-            await this.KeepPrimary();
+            await this.KeepPrimaryAsync();
             await onErrorAsync();
         }
 
-        private async Task GetPrimary()
+        internal async Task GetPrimaryAsync()
         {
             while (!this.RunningAsPrimary)
             {
@@ -47,18 +46,18 @@
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning($"[{nameof(this.GetPrimary)}] Error occured when getting heartbeat entry: {ex.ToString()}");
+                    Trace.TraceWarning($"[{nameof(this.GetPrimaryAsync)}] Error occured when getting heartbeat entry: {ex.ToString()}");
                 }
 
                 if (!this.PrimaryUp)
                 {
                     try
                     {
-                        await this.Client.SendHeartBeatAsync(this.Uuid, this.lastSeenHeartBeat);
+                        await this.Client.HeartBeatAsync(this.Uuid, this.lastSeenHeartBeat);
                     }
                     catch (Exception ex)
                     {
-                        Trace.TraceWarning($"[{nameof(this.GetPrimary)}] Error occured when updating heartbeat entry: {ex.ToString()}");
+                        Trace.TraceWarning($"[{nameof(this.GetPrimaryAsync)}] Error occured when updating heartbeat entry: {ex.ToString()}");
                     }
                 }
             }
@@ -68,13 +67,13 @@
         /// <summary>
         /// Checks if current process is primary process
         /// </summary>
-        private async Task KeepPrimary()
+        private async Task KeepPrimaryAsync()
         {
             int retryCount = 0;
 
             while (retryCount < this.TimeoutTolerance)
             {
-                this.Client.SendHeartBeatAsync(this.Uuid, this.lastSeenHeartBeat);
+                this.Client.HeartBeatAsync(this.Uuid, this.lastSeenHeartBeat);
 
                 try
                 {
@@ -83,7 +82,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning($"[{nameof(this.KeepPrimary)}] Error occured when getting heartbeat entry: {ex.ToString()}");
+                    Trace.TraceWarning($"[{nameof(this.KeepPrimaryAsync)}] Error occured when getting heartbeat entry: {ex.ToString()}");
                     retryCount++;
                 }
 
@@ -94,7 +93,7 @@
             }
         }
 
-        private bool PrimaryUp => this.lastSeenHeartBeat == null || !this.lastSeenHeartBeat.IsEmpty;
+        private bool PrimaryUp => this.lastSeenHeartBeat != null && !this.lastSeenHeartBeat.IsEmpty;
 
         private bool RunningAsPrimary => this.PrimaryUp && this.lastSeenHeartBeat.Uuid == this.Uuid;
     }
