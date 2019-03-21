@@ -7,10 +7,14 @@
 
     public class InMemoryMembershipClient : IMembershipClient
     {
-        public InMemoryMembershipClient(IMembership membershipServer)
+        public InMemoryMembershipClient(IMembership membershipServer) : this(membershipServer, Guid.NewGuid().ToString())
+        {
+        }
+
+        public InMemoryMembershipClient(IMembership membershipServer, string uuid)
         {
             this.serverImplementation = membershipServer;
-            this.Uuid = Guid.NewGuid().ToString();
+            this.Uuid = uuid;
         }
 
         private IMembership serverImplementation;
