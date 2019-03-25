@@ -21,11 +21,15 @@ namespace HighAvailabilityModule.UnitTest
 
         private static string Client1Uuid => "cdca5b45-6ea1-4d91-81f6-d39f4821e791";
 
+        private static string Client2Uuid => "33253ab7-27b6-478c-a359-4eca7df83b80";
+
         private InMemoryMembershipServer server;
 
         private InMemoryMembershipClient client;
+        private InMemoryMembershipClient client2;
 
         private MembershipWithWitness algo;
+        private MembershipWithWitness algo2;
 
         [TestInitialize]
         public void Initialize()
@@ -33,6 +37,8 @@ namespace HighAvailabilityModule.UnitTest
             this.server = new InMemoryMembershipServer(Timeout);
             this.client = new InMemoryMembershipClient(this.server, Client1Uuid);
             this.algo = new MembershipWithWitness(this.client, Interval, Timeout);
+            this.client2 = new InMemoryMembershipClient(this.server, Client2Uuid);
+            this.algo2 = new MembershipWithWitness(this.client2, Interval, Timeout);
         }
 
         [TestMethod]
@@ -114,6 +120,77 @@ namespace HighAvailabilityModule.UnitTest
             await this.algo.HeartBeatAsPrimaryAsync();
             await this.algo.CheckPrimaryAsync(DateTime.UtcNow);
             Assert.IsTrue(this.algo.RunningAsPrimary(DateTime.UtcNow));
+        }
+
+        [TestMethod]
+        [Timeout(2000)]
+        public async Task GetPrimaryTest1()
+        {
+            await this.algo.GetPrimaryAsync();
+            Assert.IsTrue(this.algo.RunningAsPrimary(DateTime.UtcNow));
+        }
+
+        [TestMethod]
+        [Timeout(2000)]
+        public async Task GetPrimaryTest2()
+        {
+            var getPrimaryTask = this.algo.GetPrimaryAsync();
+            this.algo.Stop();
+            await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => getPrimaryTask);
+            Assert.IsFalse(this.algo.RunningAsPrimary(DateTime.UtcNow));
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task GetPrimaryTest3()
+        {
+            await this.algo.GetPrimaryAsync();
+            this.algo.KeepPrimaryAsync();
+            this.algo2.GetPrimaryAsync();
+
+            this.algo.Stop();
+            this.algo2.Stop();
+
+            Assert.IsTrue(this.algo.RunningAsPrimary(DateTime.UtcNow));
+            Assert.IsFalse(this.algo2.RunningAsPrimary(DateTime.UtcNow));
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task GetPrimaryTest4()
+        {
+            await this.algo.GetPrimaryAsync();
+            await this.algo2.GetPrimaryAsync();
+
+            this.algo.Stop();
+            this.algo2.Stop();
+
+            Assert.IsFalse(this.algo.RunningAsPrimary(DateTime.UtcNow));
+            Assert.IsTrue(this.algo2.RunningAsPrimary(DateTime.UtcNow));
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task GetPrimaryTest5()
+        {
+            await this.algo.GetPrimaryAsync();
+            this.server.RemoveCurrent();
+            await this.algo.KeepPrimaryAsync();
+
+            Assert.IsFalse(this.algo.RunningAsPrimary(DateTime.UtcNow));
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task GetPrimaryTest6()
+        {
+            await this.algo.GetPrimaryAsync();
+            var task = this.algo.KeepPrimaryAsync();
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            this.server.RemoveCurrent();
+            await task;
+
+            Assert.IsFalse(this.algo.RunningAsPrimary(DateTime.UtcNow));
         }
     }
 }

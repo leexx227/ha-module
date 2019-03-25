@@ -20,6 +20,14 @@
             this.Timeout = timeout;
         }
 
+        public void RemoveCurrent()
+        {
+            lock (this.heartbeatLock)
+            {
+                this.Current = HeartBeatEntry.Empty;
+            }
+        }
+
         public Task HeartBeatAsync(string uuid, HeartBeatEntry lastSeenEntry) => this.HeartBeatAsync(uuid, lastSeenEntry, DateTime.UtcNow);
 
         public async Task HeartBeatAsync(string uuid, HeartBeatEntry lastSeenEntry, DateTime now)
