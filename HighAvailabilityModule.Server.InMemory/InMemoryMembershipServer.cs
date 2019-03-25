@@ -13,6 +13,8 @@
 
         private TimeSpan Timeout { get; }
 
+        private object heartbeatLock = new object();
+
         public InMemoryMembershipServer(TimeSpan timeout)
         {
             this.Timeout = timeout;
@@ -20,12 +22,13 @@
 
         public Task HeartBeatAsync(string uuid, HeartBeatEntry lastSeenEntry) => this.HeartBeatAsync(uuid, lastSeenEntry, DateTime.UtcNow);
 
-
         public async Task HeartBeatAsync(string uuid, HeartBeatEntry lastSeenEntry, DateTime now)
         {
             bool ValidInput()
             {
-                return this.Current == null || (lastSeenEntry != null && this.Current.Uuid == lastSeenEntry.Uuid && this.Current.TimeStamp == lastSeenEntry.TimeStamp);
+                return this.Current == null
+                       || (this.HeartbeatInvalid(now) && lastSeenEntry != null && lastSeenEntry.IsEmpty)
+                       || (lastSeenEntry != null && this.Current.Uuid == lastSeenEntry.Uuid && this.Current.TimeStamp == lastSeenEntry.TimeStamp && this.Current.Uuid == uuid);
             }
 
             if (!ValidInput())
@@ -33,18 +36,18 @@
                 return;
             }
 
-            if (this.HeartbeatInvalid(now))
+            lock (this.heartbeatLock)
             {
-                this.Current = new HeartBeatEntry(uuid, now);
-            }
-            else if (this.Current.Uuid == uuid)
-            {
+                if (!ValidInput())
+                {
+                    return;
+                }
+
                 this.Current = new HeartBeatEntry(uuid, now);
             }
         }
 
         public Task<HeartBeatEntry> GetHeartBeatEntryAsync() => this.GetHeartBeatEntryAsync(DateTime.UtcNow);
-
 
         public async Task<HeartBeatEntry> GetHeartBeatEntryAsync(DateTime now)
         {
@@ -57,7 +60,6 @@
                 return this.Current;
             }
         }
-        
 
         private bool HeartbeatInvalid(DateTime now) => this.Current == null || (now - this.Current.TimeStamp >= this.Timeout);
     }
