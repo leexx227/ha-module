@@ -59,6 +59,6 @@
         }
         
 
-        private bool HeartbeatInvalid(DateTime now) => this.Current == null || (now - this.Current.TimeStamp > this.Timeout);
+        private bool HeartbeatInvalid(DateTime now) => this.Current == null || (now - this.Current.TimeStamp >= this.Timeout);
     }
 }

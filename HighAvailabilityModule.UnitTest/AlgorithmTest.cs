@@ -1,5 +1,3 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace HighAvailabilityModule.UnitTest
 {
     using System;
@@ -9,6 +7,8 @@ namespace HighAvailabilityModule.UnitTest
     using HighAvailabilityModule.Client.InMemory;
     using HighAvailabilityModule.Interface;
     using HighAvailabilityModule.Server.InMemory;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class AlgorithmTest
@@ -36,14 +36,14 @@ namespace HighAvailabilityModule.UnitTest
         }
 
         [TestMethod]
-        public async Task BasicTest1()
+        public async Task RunningAsPrimaryTest1()
         {
             this.server.Current = null;
             Assert.IsFalse(this.algo.RunningAsPrimary(Now));
         }
 
         [TestMethod]
-        public async Task BasicTest2()
+        public async Task RunningAsPrimaryTest2()
         {
             this.server.Current = null;
             await this.algo.CheckPrimaryAsync(Now);
@@ -51,7 +51,7 @@ namespace HighAvailabilityModule.UnitTest
         }
 
         [TestMethod]
-        public async Task BasicTest3()
+        public async Task RunningAsPrimaryTest3()
         {
             this.server.Current = new HeartBeatEntry(Client1Uuid, Now);
             await this.algo.CheckPrimaryAsync(Now);
@@ -59,7 +59,7 @@ namespace HighAvailabilityModule.UnitTest
         }
 
         [TestMethod]
-        public async Task BasicTest4()
+        public async Task RunningAsPrimaryTest4()
         {
             DateTime now = DateTime.UtcNow;
             this.server.Current = new HeartBeatEntry(Client1Uuid, now - Timeout);
@@ -68,7 +68,7 @@ namespace HighAvailabilityModule.UnitTest
         }
 
         [TestMethod]
-        public async Task BasicTest5()
+        public async Task RunningAsPrimaryTest5()
         {
             this.server.Current = new HeartBeatEntry(Client1Uuid, Now);
             await this.algo.CheckPrimaryAsync(Now - Timeout + Interval);
@@ -76,7 +76,7 @@ namespace HighAvailabilityModule.UnitTest
         }
 
         [TestMethod]
-        public async Task BasicTest6()
+        public async Task RunningAsPrimaryTest6()
         {
             this.server.Current = new HeartBeatEntry(Client1Uuid, Now);
             await this.algo.CheckPrimaryAsync(Now);
@@ -85,10 +85,35 @@ namespace HighAvailabilityModule.UnitTest
         }
 
         [TestMethod]
-        public async Task BasicTest7()
+        public async Task RunningAsPrimaryTest7()
         {
             this.server.Current = new HeartBeatEntry(Client1Uuid, Now);
             Assert.IsFalse(this.algo.RunningAsPrimary(Now));
+        }
+
+        [TestMethod]
+        public async Task HeartBeatAsPrimaryTest1()
+        {
+            await this.algo.CheckPrimaryAsync(Now);
+            await this.algo.HeartBeatAsPrimaryAsync();
+            Assert.IsTrue(this.server.Current != null);
+            Assert.IsTrue(this.server.Current.Uuid == Client1Uuid);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public async Task HeartBeatAsPrimaryTest2()
+        {
+            await this.algo.HeartBeatAsPrimaryAsync();
+        }
+
+        [TestMethod]
+        public async Task HeartBeatAndCheckTest1()
+        {
+            await this.algo.CheckPrimaryAsync(DateTime.UtcNow);
+            await this.algo.HeartBeatAsPrimaryAsync();
+            await this.algo.CheckPrimaryAsync(DateTime.UtcNow);
+            Assert.IsTrue(this.algo.RunningAsPrimary(DateTime.UtcNow));
         }
     }
 }

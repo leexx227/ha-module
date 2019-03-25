@@ -75,6 +75,11 @@
 
         internal async Task HeartBeatAsPrimaryAsync()
         {
+            if (this.lastSeenHeartBeat.Entry == null)
+            {
+                throw new InvalidOperationException($"Can't send heartbeat before querying current primary.");
+            }
+
             try
             {
                 await this.Client.HeartBeatAsync(this.Uuid, this.lastSeenHeartBeat.Entry);
