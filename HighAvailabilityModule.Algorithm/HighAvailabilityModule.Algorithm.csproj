@@ -5,6 +5,7 @@
     <RootNamespace>HighAvailabilityModule.Algorithm</RootNamespace>
     <AssemblyName>HighAvailabilityModule.Algorithm</AssemblyName>
     <LangVersion>latest</LangVersion>
+	<DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
