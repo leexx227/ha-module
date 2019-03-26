@@ -37,9 +37,16 @@
         public async Task RunAsync(Func<Task> onStartAsync, Func<Task> onErrorAsync)
         {
             await this.GetPrimaryAsync();
-            await onStartAsync();
+            if (onStartAsync != null)
+            {
+                onStartAsync();
+            }
+
             await this.KeepPrimaryAsync();
-            await onErrorAsync();
+            if (onErrorAsync != null)
+            {
+                await onErrorAsync();
+            }
         }
 
         public void Stop()

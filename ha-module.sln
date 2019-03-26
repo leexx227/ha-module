@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Serv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Client.Rest", "HighAvailabilityModule.Client.Rest\HighAvailabilityModule.Client.Rest.csproj", "{563A5EED-05A1-43AC-A6EF-9420D96FB1B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Sample.RestClient", "HighAvailabilityModule.Sample.RestClient\HighAvailabilityModule.Sample.RestClient.csproj", "{FD5E3B86-AB63-4570-835A-D92DD482CF92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{563A5EED-05A1-43AC-A6EF-9420D96FB1B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{563A5EED-05A1-43AC-A6EF-9420D96FB1B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{563A5EED-05A1-43AC-A6EF-9420D96FB1B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD5E3B86-AB63-4570-835A-D92DD482CF92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD5E3B86-AB63-4570-835A-D92DD482CF92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD5E3B86-AB63-4570-835A-D92DD482CF92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD5E3B86-AB63-4570-835A-D92DD482CF92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
