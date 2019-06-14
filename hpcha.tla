@@ -78,13 +78,19 @@ Next ==
                     
 SingleLeaderOnly == Cardinality(currentLeader) <= 1   
 
-Spec == /\ Init /\ [][Next]_vars /\ SF_vars(LeaderElected) /\ SF_vars(LeaderLost) 
-        /\ \E s \in SERVER: /\ SF_vars(StepUp(s)) 
-                            /\ SF_vars(StepDown(s))
-                            /\ SF_vars(StartHeartBeat(s))
-                            /\ SF_vars(StopHeartBeat(s))
+Spec == Init /\ [][Next]_vars
+FairSpec == /\ Spec 
+            /\ SF_vars(LeaderElected) /\ WF_vars(LeaderLost) 
+            /\ \A s \in SERVER: /\ SF_vars(StepUp(s)) 
+                                /\ WF_vars(StepDown(s))
+                                /\ WF_vars(StartHeartBeat(s))
+                                /\ WF_vars(StopHeartBeat(s))
+                        
+EventualHeartBeat == currentLeader = {} ~> (\E s \in SERVER: serverHeartBeat[s] = "heartbeating")
+EventualElected == (\E s \in SERVER: serverHeartBeat[s] = "heartbeating") ~> currentLeader # {}
+EventualStepUp == currentLeader # {} ~> (\E s \in SERVER: serverState[s] = "leader")
                             
 =============================================================================
 \* Modification History
-\* Last modified Fri Jun 14 11:45:29 CST 2019 by zihche
+\* Last modified Fri Jun 14 20:34:08 CST 2019 by zihche
 \* Created Wed Jun 12 18:37:17 CST 2019 by zihche
