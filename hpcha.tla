@@ -31,27 +31,21 @@ StopHeartBeat(s) ==
   /\ serverHeartBeat' = [serverHeartBeat EXCEPT ![s] = "stopped"]
   /\ UNCHANGED <<currentLeader, serverState>>
   
+(***************************************************************************)
+(* ServerCrash should always trigger LeaderLost to ensure safety.  This    *)
+(* can be guaranteed in implementation by generate new server ID on        *)
+(* restart.                                                                *)
+(***************************************************************************)
 ServerCrach(s) ==
   /\ serverState' = [serverState EXCEPT ![s] = "follower"]
   /\ serverHeartBeat' = [serverHeartBeat EXCEPT ![s] = "stopped"]
-  /\ UNCHANGED <<currentLeader>>
-  
-ServerConnectionLost(s) ==
-  /\ serverHeartBeat' = [serverHeartBeat EXCEPT ![s] = "stopped"]
-  /\ UNCHANGED <<currentLeader, serverState>>
+  /\ currentLeader' = currentLeader \ {s}
   
 StepUp(s) ==
   /\ serverState[s] = "follower"
   /\ s \in currentLeader
   /\ serverState' = [serverState EXCEPT ![s] = "leader"]
   /\ UNCHANGED <<currentLeader, serverHeartBeat>>  
-  
-StepDown(s) ==
-  /\ serverState[s] = "leader"
-  /\ s \notin currentLeader
-  /\ serverState' = [serverState EXCEPT ![s] = "follower"]
-  /\ serverHeartBeat' = [serverHeartBeat EXCEPT ![s] = "stopped"]
-  /\ UNCHANGED <<currentLeader>>
 
 LeaderLost ==
   /\ currentLeader # {}
@@ -72,25 +66,25 @@ Next ==
   \/ \E s \in SERVER: \/ ServerCrach(s)
                       \/ StartHeartBeat(s)
                       \/ StopHeartBeat(s)
-                      \/ ServerConnectionLost(s)
                       \/ StepUp(s)
-                      \/ StepDown(s)
                     
-SingleLeaderOnly == Cardinality(currentLeader) <= 1   
+SingleLeaderElected == Cardinality(currentLeader) <= 1   
+SingleLeaderStepUp == \/ \E s \in SERVER: /\ serverState[s] = "leader"
+                                          /\ \A s2 \in SERVER \ {s}: serverState[s2] = "follower"
+                      \/ \A s \in SERVER: serverState[s] = "follower"
+                      
 
 Spec == Init /\ [][Next]_vars
 FairSpec == /\ Spec 
             /\ SF_vars(LeaderElected) /\ WF_vars(LeaderLost) 
             /\ \A s \in SERVER: /\ SF_vars(StepUp(s)) 
-                                /\ WF_vars(StepDown(s))
                                 /\ WF_vars(StartHeartBeat(s))
                                 /\ WF_vars(StopHeartBeat(s))
                         
 EventualHeartBeat == currentLeader = {} ~> (\E s \in SERVER: serverHeartBeat[s] = "heartbeating")
 EventualElected == (\E s \in SERVER: serverHeartBeat[s] = "heartbeating") ~> currentLeader # {}
 EventualStepUp == currentLeader # {} ~> (\E s \in SERVER: serverState[s] = "leader")
-                            
 =============================================================================
 \* Modification History
-\* Last modified Fri Jun 14 20:34:08 CST 2019 by zihche
+\* Last modified Mon Jun 17 10:22:28 CST 2019 by zihche
 \* Created Wed Jun 12 18:37:17 CST 2019 by zihche
