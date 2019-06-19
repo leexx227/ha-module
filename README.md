@@ -8,14 +8,14 @@ Algorithms for doing leader election and name resolving with the help of another
  
 ## Data
  - `Heartbeat table`: A tabel in the SQL always-on instance contains heartbeat entry.
- - `Heartbeat Entry`: in the format {uuid, utype, timestamp}
+ - `Heartbeat Entry`: in the format `{uuid, utype, timestamp}`
  - `sql_time`: current time in SQL server
  - All time is in UTC time
 
 ## Peocedures
  - `UpdataHearthBeat (uuid, utype)`:
    
-   For each type, updata entry {old_uuid, utype, old_timestamp} in heartbeat table with {uuid, utype, sql_time}.
+   For each type, updata entry `{old_uuid, utype, old_timestamp}` in heartbeat table with `{uuid, utype, sql_time}`.
 
    For each type, if uuid is not equal to old_uuid, then (`sql_time – old_timestamp > T`) must be satisfied.
 
@@ -23,7 +23,7 @@ Algorithms for doing leader election and name resolving with the help of another
 
  - `GetPrimary (utype)`:
 
-   Return (uuid, utype) in heartbeat entry with the correspangding query utype if (`sql_time - timestamps <= T`). Else return empty value.
+   Return `(uuid, utype)` in heartbeat entry with the correspangding query utype if (`sql_time - timestamps <= T`). Else return empty value.
 
 ## Algorithm
 1. After a client S started, it genetates a unique instance ID `uid` to indentify itself and marks itself with the exact `utype`, which it will work as in the future.
@@ -34,7 +34,7 @@ Algorithms for doing leader election and name resolving with the help of another
 
 4. Continue to call `GetPrimary (utype)` every `I` secs.
 
-    a. If subsequent call to `GetPrimary (utype)` returns (uid, utype) generated in 1, S will then work as primary.
+    a. If subsequent call to `GetPrimary (utype)` returns `(uid, utype)` generated in 1, S will then work as primary.
 
     b. If subsequent call to `GetPrimary (utype)` returns a unique ID which is different from `uid` and the same type with `utype` generated in 1, go back to 2.
 
@@ -46,4 +46,4 @@ Algorithms for doing leader election and name resolving with the help of another
 
 5. S call `UpdateHeartBeat (uid, utype)` and `GetPrimary (utype)` every `I` sec.
 
-    a. If `GetPrimary (utype)` returns anything except (uid, utype), or didn't return for `(T-I)` secs, exit itself and restart.
+    a. If `GetPrimary (utype)` returns anything except `(uid, utype)`, or didn't return for `(T-I)` secs, exit itself and restart.
