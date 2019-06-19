@@ -12,14 +12,14 @@ Algorithms for doing leader election and name resolving with the help of another
  - `sql_time`: current time in SQL server
  - All time is in UTC time
 
-## Peocedures
- - `UpdataHearthBeat (uuid, utype)`:
+## Procedures
+ - `UpdateHeartBeat (uuid, utype)`:
    
-   For each type, updata entry `{old_uuid, utype, old_timestamp}` in heartbeat table with `{uuid, utype, sql_time}`.
+   For each type, update entry `{old_uuid, utype, old_timestamp}` in heartbeat table with `{uuid, utype, sql_time}`.
 
    For each type, if uuid is not equal to old_uuid, then (`sql_time – old_timestamp > T`) must be satisfied.
 
-   The update process uses optimistic concurrency control. e.g. if the heartbeat entry has been updated before another heartbeat reaches SQL, the later heartbeat is discarded.
+   The update process uses optimistic concurrency control. E.g. if the heartbeat entry has been updated before another heartbeat reaches SQL, the later heartbeat is discarded.
 
  - `GetPrimary (utype)`:
 
