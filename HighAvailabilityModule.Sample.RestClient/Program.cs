@@ -20,13 +20,16 @@
 
             MembershipWithWitness algo = new MembershipWithWitness(client, interval, timeout);
 
+            Console.WriteLine("Uuid:{0}",client.Uuid);
+            Console.WriteLine("Type:{0}",client.Utype);
+
             await algo.RunAsync(
                 () => Task.Run(
                     async () =>
                         {
                             while (true)
                             {
-                                Console.WriteLine($"Running as primary. [{DateTime.UtcNow}]");
+                                Console.WriteLine($"Type:{client.Utype}. Running as primary. [{DateTime.UtcNow}]");
                                 await Task.Delay(TimeSpan.FromSeconds(2));
                             }
                         }),

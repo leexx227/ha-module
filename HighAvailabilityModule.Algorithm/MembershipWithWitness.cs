@@ -11,6 +11,8 @@
     {
         private string Uuid { get; }
 
+        private string Utype { get; }
+
         private IMembershipClient Client { get; }
 
         private TimeSpan HeartBeatInterval { get; }
@@ -30,6 +32,7 @@
             this.Client = client;
             this.Client.OperationTimeout = heartBeatInterval;
             this.Uuid = client.GenerateUuid();
+            this.Utype = client.GenerateUtype();
             this.HeartBeatInterval = heartBeatInterval;
             this.HeartBeatTimeout = heartBeatTimeout;
         }
@@ -76,7 +79,7 @@
         {
             try
             {
-                var entry = await this.Client.GetHeartBeatEntryAsync();
+                var entry = await this.Client.GetHeartBeatEntryAsync(this.Utype);
                 if (now > this.lastSeenHeartBeat.QueryTime)
                 {
                     lock (this.heartbeatLock)
@@ -107,7 +110,7 @@
             {
                 Trace.TraceInformation($"[{this.Uuid}] Sending heartbeat with UUID = {this.Uuid}, lastSeenHeartBeat = {this.lastSeenHeartBeat.Entry.Uuid}, {this.lastSeenHeartBeat.Entry.TimeStamp}");
 
-                await this.Client.HeartBeatAsync(this.Uuid, this.lastSeenHeartBeat.Entry);
+                await this.Client.HeartBeatAsync(this.Uuid, this.Utype, this.lastSeenHeartBeat.Entry);
             }
             catch (Exception ex)
             {

@@ -4,8 +4,8 @@
 
     public interface IMembership
     {
-        Task HeartBeatAsync(string uuid, HeartBeatEntry lastSeenEntry);
+        Task HeartBeatAsync(string uuid, string utype, HeartBeatEntry lastSeenEntry);
 
-        Task<HeartBeatEntry> GetHeartBeatEntryAsync();
+        Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype);
     }
 }
