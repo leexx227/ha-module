@@ -130,8 +130,8 @@
             while (this.RunningAsPrimary(DateTime.UtcNow))
             {
                 token.ThrowIfCancellationRequested();
-                await this.HeartBeatAsPrimaryAsync();
-                await this.CheckPrimaryAsync(DateTime.UtcNow);
+                this.HeartBeatAsPrimaryAsync();
+                this.CheckPrimaryAsync(DateTime.UtcNow);
                 await Task.Delay(this.HeartBeatInterval, token);
             }
         }
