@@ -23,13 +23,13 @@
             return true;
         }
 
-        [HttpPost("heartbeat/{uuid}")]
-        public async Task HeartBeatAsync(string uuid, string utype, [FromBody] HeartBeatEntry lastSeenEntry)
+        [HttpPost("heartbeat")]
+        public async Task HeartBeatAsync([FromBody] HeartBeatEntryDTO entryDTO)
         {
-            await this.membershipImpl.HeartBeatAsync(uuid, utype, lastSeenEntry);
+            await this.membershipImpl.HeartBeatAsync(entryDTO);
         }
 
-        [HttpGet("heartbeat")]
+        [HttpGet("heartbeat/{utype}")]
         public async Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype) => await this.membershipImpl.GetHeartBeatEntryAsync(utype);
     }
 }

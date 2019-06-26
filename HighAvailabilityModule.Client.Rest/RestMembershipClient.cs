@@ -16,17 +16,17 @@
 
         public string Uuid { get; }
 
-        public string Utype { get; }
+        public string Utype { get; set; }
 
-        private string[] AllType = new string[] {"A","B"};
+        public string Unum { get; set; }
 
-        public RestMembershipClient(TimeSpan operationTimeout)
+        public RestMembershipClient(string utype, string unum, TimeSpan operationTimeout)
         {
             this.httpClient = new HttpClient { Timeout = operationTimeout };
             this.impl = new RestClientImpl(this.httpClient);
             this.Uuid = Guid.NewGuid().ToString();
-            this.Utype = this.GenerateUtypeImpl();
-            //this.Utype = "A";
+            this.Utype = utype;
+            this.Unum = unum;
         }
 
         public string BaseUri
@@ -35,27 +35,16 @@
             set => this.impl.BaseUrl = value;
         }
 
-        public Task HeartBeatAsync(string uuid, string utype, HeartBeatEntry lastSeenEntry) => this.impl.HeartBeatAsync(uuid, utype, lastSeenEntry);
+        public Task HeartBeatAsync(HeartBeatEntryDTO entryDTO) => this.impl.HeartBeatAsync(entryDTO);
 
         public Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype) => this.impl.GetHeartBeatEntryAsync(utype);
 
         public string GenerateUuid() => this.Uuid;
-
-        public string GenerateUtype() => this.Utype;
-
-        public string GenerateUtypeImpl()
-        {
-            int length = AllType.Length;
-            Random random = new Random();
-            return AllType[random.Next(0,length)];
-        }
-
 
         public TimeSpan OperationTimeout
         {
             get => this.httpClient.Timeout;
             set => this.httpClient.Timeout = value;
         }
-
     }
 }

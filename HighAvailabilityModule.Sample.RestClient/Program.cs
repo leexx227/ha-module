@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Runtime.InteropServices.ComTypes;
     using System.Threading.Tasks;
 
     using HighAvailabilityModule.Algorithm;
@@ -12,16 +13,33 @@
         static async Task Main(string[] args)
         {
             // Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            string utype;
+            string unum;
+
+            if (args.Length != 0)
+            {
+                utype = args[1];
+                if (utype == "query")
+                    unum = "-1";
+                else
+                    unum = args[2];
+            }
+            else
+            {
+                Console.WriteLine("Please give the client's type and machine num!");
+                return;
+            }
 
             var interval = TimeSpan.FromSeconds(1);
             var timeout = TimeSpan.FromSeconds(5);
 
-            RestMembershipClient client = new RestMembershipClient(interval);
+            RestMembershipClient client = new RestMembershipClient(utype, unum, interval);
 
             MembershipWithWitness algo = new MembershipWithWitness(client, interval, timeout);
 
             Console.WriteLine("Uuid:{0}",client.Uuid);
             Console.WriteLine("Type:{0}",client.Utype);
+            Console.WriteLine("Machine Num:{0}", client.Unum);
 
             await algo.RunAsync(
                 () => Task.Run(
@@ -29,8 +47,11 @@
                         {
                             while (true)
                             {
-                                Console.WriteLine($"Type:{client.Utype}. Running as primary. [{DateTime.UtcNow}]");
-                                await Task.Delay(TimeSpan.FromSeconds(2));
+                                if (utype != "query")
+                                {
+                                    Console.WriteLine($"Type:{client.Utype}. Machine Num:{client.Unum}. Running as primary. [{DateTime.UtcNow}]");
+                                    await Task.Delay(TimeSpan.FromSeconds(2));
+                                }
                             }
                         }),
                 null);

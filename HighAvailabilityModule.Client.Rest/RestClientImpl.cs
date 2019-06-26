@@ -110,30 +110,24 @@ namespace HighAvailabilityModule.Client.Rest
         }
 
         /// <exception cref="MembershipException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task HeartBeatAsync(string uuid, string utype, HeartBeatEntry lastSeenEntry)
+        public System.Threading.Tasks.Task HeartBeatAsync(HeartBeatEntryDTO entryDTO)
         {
-            return HeartBeatAsync(uuid, utype, lastSeenEntry, System.Threading.CancellationToken.None);
+            return HeartBeatAsync(entryDTO, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="MembershipException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task HeartBeatAsync(string uuid, string utype, HeartBeatEntry lastSeenEntry, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task HeartBeatAsync(HeartBeatEntryDTO entryDTO, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Membership/heartbeat/{uuid}?");
-            urlBuilder_.Replace("{uuid}", System.Uri.EscapeDataString(ConvertToString(uuid, System.Globalization.CultureInfo.InvariantCulture)));
-            if (utype != null)
-            {
-                urlBuilder_.Append("utype=").Append(System.Uri.EscapeDataString(ConvertToString(utype, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
-            urlBuilder_.Length--;
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Membership/heartbeat");
 
             var client_ = _httpClient;
             try
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(lastSeenEntry, _settings.Value));
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(entryDTO, _settings.Value));
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
@@ -190,12 +184,8 @@ namespace HighAvailabilityModule.Client.Rest
         public async System.Threading.Tasks.Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Membership/heartbeat?");
-            if (utype != null)
-            {
-                urlBuilder_.Append("utype=").Append(System.Uri.EscapeDataString(ConvertToString(utype, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
-            urlBuilder_.Length--;
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Membership/heartbeat/{utype}");
+            urlBuilder_.Replace("{utype}", System.Uri.EscapeDataString(ConvertToString(utype, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             try
@@ -337,25 +327,6 @@ namespace HighAvailabilityModule.Client.Rest
             return System.Convert.ToString(value, cultureInfo);
         }
     }
-
-    //[System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.0.20.0 (Newtonsoft.Json v11.0.0.0)")]
-    //public partial class HeartBeatEntry
-    //{
-    //    [Newtonsoft.Json.JsonProperty("uuid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-    //    public string Uuid { get; set; }
-
-    //    [Newtonsoft.Json.JsonProperty("utype", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-    //    public string Utype { get; set; }
-
-    //    [Newtonsoft.Json.JsonProperty("timeStamp", Required = Newtonsoft.Json.Required.Always)]
-    //    [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-    //    public System.DateTimeOffset TimeStamp { get; set; }
-
-    //    [Newtonsoft.Json.JsonProperty("isEmpty", Required = Newtonsoft.Json.Required.Always)]
-    //    public bool IsEmpty { get; set; }
-
-
-    //}
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.0.2.0 (NJsonSchema v10.0.20.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class MembershipException : System.Exception

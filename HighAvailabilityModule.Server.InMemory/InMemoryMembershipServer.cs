@@ -15,7 +15,7 @@
 
         private TimeSpan Timeout { get; }
 
-        private static object heartbeatLock = new object();
+        private object heartbeatLock = new object();
 
         public InMemoryMembershipServer(TimeSpan timeout)
         {
@@ -27,25 +27,26 @@
             lock (heartbeatLock)
             {
                 List<string> key = new List<string>(this.CurrentTable.Keys);
-                for (int i = 0;i<key.Count;i++)
+                for (int i = 0; i < key.Count; i++)
                 {
                     this.CurrentTable[key[i]] = HeartBeatEntry.Empty;
                 }
             }
         }
 
-        public Task HeartBeatAsync(string uuid, string utype, HeartBeatEntry lastSeenEntry) => this.HeartBeatAsync(uuid, utype, lastSeenEntry, DateTime.UtcNow);
+        public Task HeartBeatAsync(HeartBeatEntryDTO entryDTO) => this.HeartBeatAsync(entryDTO, DateTime.UtcNow);
 
-        public async Task HeartBeatAsync(string uuid, string utype, HeartBeatEntry lastSeenEntry, DateTime now)
+        public async Task HeartBeatAsync(HeartBeatEntryDTO entryDTO, DateTime now)
         {
             bool ValidInput()
             {
-                if (this.CurrentTable.ContainsKey(utype))
+                if (this.CurrentTable.ContainsKey(entryDTO.Utype))
                 {
-                    return this.CurrentTable[utype] == null
-                           || (this.HeartbeatInvalid(utype, now) && lastSeenEntry != null && lastSeenEntry.IsEmpty)
-                           || (lastSeenEntry != null && this.CurrentTable[utype].Uuid == lastSeenEntry.Uuid &&
-                           this.CurrentTable[utype].TimeStamp == lastSeenEntry.TimeStamp && this.CurrentTable[utype].Uuid == uuid);
+                    return this.CurrentTable[entryDTO.Utype] == null
+                           || (this.HeartbeatInvalid(entryDTO.Utype, now) && entryDTO.LastSeenEntry != null && entryDTO.LastSeenEntry.IsEmpty)
+                           || (entryDTO.LastSeenEntry != null && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.LastSeenEntry.Uuid &&
+                           this.CurrentTable[entryDTO.Utype].Utype == entryDTO.LastSeenEntry.Utype && this.CurrentTable[entryDTO.Utype].TimeStamp == entryDTO.LastSeenEntry.TimeStamp 
+                           && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.Uuid && this.CurrentTable[entryDTO.Utype].Utype == entryDTO.Utype);
                 }
                 else
                 {
@@ -60,23 +61,16 @@
             }
 
 
-            lock (heartbeatLock)
+            lock (this.heartbeatLock)
             {
                 if (!ValidInput())
                 {
                     return;
                 }
 
-                this.Current = new HeartBeatEntry(uuid, utype, now);
+                this.Current = new HeartBeatEntry(entryDTO.Uuid, entryDTO.Utype, entryDTO.Unum, now);
 
-                if (this.CurrentTable.ContainsKey(utype))
-                {
-                    this.CurrentTable[utype] = this.Current;
-                }
-                else
-                {
-                    this.CurrentTable.Add(utype, this.Current);
-                }
+                this.CurrentTable[entryDTO.Utype] = this.Current;
             }
         }
 
@@ -90,13 +84,7 @@
             }
             else
             {
-                if (this.CurrentTable.ContainsKey(utype))
-                {
-                    return this.CurrentTable[utype];
-                }
-                    
-                else
-                    return HeartBeatEntry.Empty;
+                return this.CurrentTable[utype];
             }                
         }
 
@@ -105,7 +93,9 @@
             if (this.CurrentTable.ContainsKey(utype))
                 return this.CurrentTable[utype] == null || (now - this.CurrentTable[utype].TimeStamp >= this.Timeout);
             else
+            {
                 return true;
+            }
         }
     }
 }

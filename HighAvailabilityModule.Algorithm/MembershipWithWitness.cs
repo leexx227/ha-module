@@ -13,6 +13,8 @@
 
         private string Utype { get; }
 
+        private string Unum { get; }
+
         private IMembershipClient Client { get; }
 
         private TimeSpan HeartBeatInterval { get; }
@@ -23,6 +25,8 @@
 
         private object heartbeatLock = new object();
 
+        private string[] AllType = new string[] { "A", "B" };
+
         private CancellationTokenSource AlgorithmCancellationTokenSource { get; } = new CancellationTokenSource();
 
         internal CancellationToken AlgorithmCancellationToken => this.AlgorithmCancellationTokenSource.Token;
@@ -32,23 +36,42 @@
             this.Client = client;
             this.Client.OperationTimeout = heartBeatInterval;
             this.Uuid = client.GenerateUuid();
-            this.Utype = client.GenerateUtype();
+            this.Utype = client.Utype;
+            this.Unum = client.Unum;
             this.HeartBeatInterval = heartBeatInterval;
             this.HeartBeatTimeout = heartBeatTimeout;
         }
 
         public async Task RunAsync(Func<Task> onStartAsync, Func<Task> onErrorAsync)
         {
-            await this.GetPrimaryAsync();
-            if (onStartAsync != null)
+            if (this.Utype != "query")
             {
-                onStartAsync();
-            }
+                await this.GetPrimaryAsync();
+                if (onStartAsync != null)
+                {
+                    onStartAsync();
+                }
 
-            await this.KeepPrimaryAsync();
-            if (onErrorAsync != null)
+                await this.KeepPrimaryAsync();
+                if (onErrorAsync != null)
+                {
+                    await onErrorAsync();
+                }
+            }
+            else
             {
-                await onErrorAsync();
+                while (true)
+                {
+                    foreach (string qtype in this.AllType)
+                    {
+                        var primary = await this.Client.GetHeartBeatEntryAsync(qtype);
+                        if (!primary.IsEmpty)
+                        {
+                            Console.WriteLine($"[Query Result] Type:{primary.Utype}. Machine Num:{primary.Unum}. Running as primary. [{primary.TimeStamp}]");
+                            await Task.Delay(TimeSpan.FromSeconds(2));
+                        }
+                    }
+                }
             }
         }
 
@@ -110,7 +133,7 @@
             {
                 Trace.TraceInformation($"[{this.Uuid}] Sending heartbeat with UUID = {this.Uuid}, lastSeenHeartBeat = {this.lastSeenHeartBeat.Entry.Uuid}, {this.lastSeenHeartBeat.Entry.TimeStamp}");
 
-                await this.Client.HeartBeatAsync(this.Uuid, this.Utype, this.lastSeenHeartBeat.Entry);
+                await this.Client.HeartBeatAsync(new HeartBeatEntryDTO (this.Uuid, this.Utype, this.Unum, this.lastSeenHeartBeat.Entry));
             }
             catch (Exception ex)
             {
@@ -127,8 +150,8 @@
             while (this.RunningAsPrimary(DateTime.UtcNow))
             {
                 token.ThrowIfCancellationRequested();
-                this.HeartBeatAsPrimaryAsync();
-                this.CheckPrimaryAsync(DateTime.UtcNow);
+                await this.HeartBeatAsPrimaryAsync();
+                await this.CheckPrimaryAsync(DateTime.UtcNow);
                 await Task.Delay(this.HeartBeatInterval, token);
             }
         }
