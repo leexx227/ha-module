@@ -25,8 +25,6 @@
 
         private object heartbeatLock = new object();
 
-        private string[] AllType = new string[] { "A", "B" };
-
         private CancellationTokenSource AlgorithmCancellationTokenSource { get; } = new CancellationTokenSource();
 
         internal CancellationToken AlgorithmCancellationToken => this.AlgorithmCancellationTokenSource.Token;
@@ -44,34 +42,16 @@
 
         public async Task RunAsync(Func<Task> onStartAsync, Func<Task> onErrorAsync)
         {
-            if (this.Utype != "query")
+            await this.GetPrimaryAsync();
+            if (onStartAsync != null)
             {
-                await this.GetPrimaryAsync();
-                if (onStartAsync != null)
-                {
-                    onStartAsync();
-                }
-
-                await this.KeepPrimaryAsync();
-                if (onErrorAsync != null)
-                {
-                    await onErrorAsync();
-                }
+                onStartAsync();
             }
-            else
+
+            await this.KeepPrimaryAsync();
+            if (onErrorAsync != null)
             {
-                while (true)
-                {
-                    foreach (string qtype in this.AllType)
-                    {
-                        var primary = await this.Client.GetHeartBeatEntryAsync(qtype);
-                        if (!primary.IsEmpty)
-                        {
-                            Console.WriteLine($"[Query Result] Type:{primary.Utype}. Machine Num:{primary.Unum}. Running as primary. [{primary.TimeStamp}]");
-                            await Task.Delay(TimeSpan.FromSeconds(2));
-                        }
-                    }
-                }
+                await onErrorAsync();
             }
         }
 

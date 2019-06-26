@@ -16,6 +16,8 @@
             string utype;
             string unum;
 
+            string[] AllType = new string[] { "A", "B" };
+
             if (args.Length != 0)
             {
                 utype = args[1];
@@ -41,20 +43,38 @@
             Console.WriteLine("Type:{0}",client.Utype);
             Console.WriteLine("Machine Num:{0}", client.Unum);
 
-            await algo.RunAsync(
+            if (client.Utype == "query")
+            {
+                while (true)
+                {
+                    foreach (string qtype in AllType)
+                    {
+                        var primary = await client.GetHeartBeatEntryAsync(qtype);
+                        if (!primary.IsEmpty)
+                        {
+                            Console.WriteLine($"[Query Result] Type:{primary.Utype}. Machine Num:{primary.Unum}. Running as primary. [{primary.TimeStamp}]");
+                            await Task.Delay(TimeSpan.FromSeconds(2));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                await algo.RunAsync(
                 () => Task.Run(
                     async () =>
+                    {
+                        while (true)
                         {
-                            while (true)
+                            if (utype != "query")
                             {
-                                if (utype != "query")
-                                {
-                                    Console.WriteLine($"Type:{client.Utype}. Machine Num:{client.Unum}. Running as primary. [{DateTime.UtcNow}]");
-                                    await Task.Delay(TimeSpan.FromSeconds(2));
-                                }
+                                Console.WriteLine($"Type:{client.Utype}. Machine Num:{client.Unum}. Running as primary. [{DateTime.UtcNow}]");
+                                await Task.Delay(TimeSpan.FromSeconds(2));
                             }
-                        }),
+                        }
+                    }),
                 null);
+            }
         }
     }
 }
