@@ -7,23 +7,27 @@
 
     public class InMemoryMembershipClient : IMembershipClient
     {
-        public InMemoryMembershipClient(IMembership membershipServer) : this(membershipServer, Guid.NewGuid().ToString())
+        public InMemoryMembershipClient(IMembership membershipServer) : this(membershipServer, Guid.NewGuid().ToString(), "A", "1")
         {
         }
 
-        public InMemoryMembershipClient(IMembership membershipServer, string uuid)
+        public InMemoryMembershipClient(IMembership membershipServer, string uuid, string utype, string uname)
         {
             this.serverImplementation = membershipServer;
             this.Uuid = uuid;
+            this.Utype = utype;
+            this.Uname = uname;
         }
 
         private IMembership serverImplementation;
 
         public string Uuid { get; }
+        public string Utype { get; set; }
+        public string Uname { get; set; }
 
-        public Task HeartBeatAsync(string uuid, HeartBeatEntry lastSeenEntry) => this.serverImplementation.HeartBeatAsync(uuid, lastSeenEntry);
+        public Task HeartBeatAsync(HeartBeatEntryDTO entryDTO) => this.serverImplementation.HeartBeatAsync(entryDTO);
 
-        public Task<HeartBeatEntry> GetHeartBeatEntryAsync() => this.serverImplementation.GetHeartBeatEntryAsync();
+        public Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype) => this.serverImplementation.GetHeartBeatEntryAsync(utype);
 
         public string GenerateUuid() => this.Uuid;
 
