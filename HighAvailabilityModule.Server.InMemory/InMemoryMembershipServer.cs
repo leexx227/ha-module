@@ -40,16 +40,9 @@
         {
             bool ValidInput()
             {
-                if (this.CurrentTable.ContainsKey(entryDTO.Utype))
-                {
-                    return this.CurrentTable[entryDTO.Utype] == null
-                           || (this.HeartbeatInvalid(entryDTO.Utype, now) && entryDTO.LastSeenEntry != null && entryDTO.LastSeenEntry.IsEmpty)
-                           || (this.LastSeenEntryValid(entryDTO.Utype, entryDTO.LastSeenEntry) && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.Uuid && this.CurrentTable[entryDTO.Utype].Utype == entryDTO.Utype);
-                }
-                else
-                {
-                    return true;
-                }
+                return !this.CurrentTable.ContainsKey(entryDTO.Utype) || this.CurrentTable[entryDTO.Utype] == null
+                        || (this.HeartbeatInvalid(entryDTO.Utype, now) && entryDTO.LastSeenEntry != null && entryDTO.LastSeenEntry.IsEmpty)
+                        || (this.LastSeenEntryValid(entryDTO.Utype, entryDTO.LastSeenEntry) && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.Uuid && this.CurrentTable[entryDTO.Utype].Utype == entryDTO.Utype);
             }
 
             if (!ValidInput())
@@ -86,27 +79,13 @@
 
         private bool HeartbeatInvalid(string utype, DateTime now)
         {
-            if (this.CurrentTable.ContainsKey(utype))
-            {
-                return this.CurrentTable[utype] == null || (now - this.CurrentTable[utype].TimeStamp >= this.Timeout);
-            }
-            else
-            {
-                return true;
-            }
+            return !this.CurrentTable.ContainsKey(utype) || this.CurrentTable[utype] == null || (now - this.CurrentTable[utype].TimeStamp >= this.Timeout);
         }
 
         private bool LastSeenEntryValid(string utype, HeartBeatEntry LastSeenEntry)
         {
-            if (this.CurrentTable.ContainsKey(utype))
-            {
-                return LastSeenEntry != null && this.CurrentTable[utype].Uuid == LastSeenEntry.Uuid &&
-                this.CurrentTable[utype].Utype == LastSeenEntry.Utype && this.CurrentTable[utype].TimeStamp == LastSeenEntry.TimeStamp;
-            }
-            else
-            {
-                return false;
-            }   
+            return this.CurrentTable.ContainsKey(utype) && LastSeenEntry != null && this.CurrentTable[utype].Uuid == LastSeenEntry.Uuid &&
+            this.CurrentTable[utype].Utype == LastSeenEntry.Utype && this.CurrentTable[utype].TimeStamp == LastSeenEntry.TimeStamp;
         }
     }
 }
