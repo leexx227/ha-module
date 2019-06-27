@@ -6,9 +6,9 @@
     {
         string GenerateUuid();
 
-        string Utype { get; set; }
+        string Utype { get; }
 
-        string Unum { get; set; }
+        string Uname { get; }
 
         TimeSpan OperationTimeout { get; set; }
     }

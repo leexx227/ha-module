@@ -13,7 +13,7 @@
 
         private string Utype { get; }
 
-        private string Unum { get; }
+        private string Uname { get; }
 
         private IMembershipClient Client { get; }
 
@@ -35,7 +35,7 @@
             this.Client.OperationTimeout = heartBeatInterval;
             this.Uuid = client.GenerateUuid();
             this.Utype = client.Utype;
-            this.Unum = client.Unum;
+            this.Uname = client.Uname;
             this.HeartBeatInterval = heartBeatInterval;
             this.HeartBeatTimeout = heartBeatTimeout;
         }
@@ -113,7 +113,7 @@
             {
                 Trace.TraceInformation($"[{this.Uuid}] Sending heartbeat with UUID = {this.Uuid}, lastSeenHeartBeat = {this.lastSeenHeartBeat.Entry.Uuid}, {this.lastSeenHeartBeat.Entry.TimeStamp}");
 
-                await this.Client.HeartBeatAsync(new HeartBeatEntryDTO (this.Uuid, this.Utype, this.Unum, this.lastSeenHeartBeat.Entry));
+                await this.Client.HeartBeatAsync(new HeartBeatEntryDTO (this.Uuid, this.Utype, this.Uname, this.lastSeenHeartBeat.Entry));
             }
             catch (Exception ex)
             {

@@ -16,17 +16,17 @@
 
         public string Uuid { get; }
 
-        public string Utype { get; set; }
+        public string Utype { get; }
 
-        public string Unum { get; set; }
+        public string Uname { get; }
 
-        public RestMembershipClient(string utype, string unum, TimeSpan operationTimeout)
+        public RestMembershipClient(string utype, string uname, TimeSpan operationTimeout)
         {
             this.httpClient = new HttpClient { Timeout = operationTimeout };
             this.impl = new RestClientImpl(this.httpClient);
             this.Uuid = Guid.NewGuid().ToString();
             this.Utype = utype;
-            this.Unum = unum;
+            this.Uname = uname;
         }
 
         public string BaseUri

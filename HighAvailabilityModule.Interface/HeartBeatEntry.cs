@@ -4,11 +4,11 @@
 
     public class HeartBeatEntry
     {
-        public HeartBeatEntry(string uuid, string utype, string unum, DateTime timeStamp)
+        public HeartBeatEntry(string uuid, string utype, string uname, DateTime timeStamp)
         {
             this.Uuid = uuid;
             this.Utype = utype;
-            this.Unum = unum;
+            this.Uname = uname;
             this.TimeStamp = timeStamp;
         }
 
@@ -16,7 +16,7 @@
 
         public string Utype { get; }
 
-        public string Unum { get; }
+        public string Uname { get; }
 
         public DateTime TimeStamp { get; }
 

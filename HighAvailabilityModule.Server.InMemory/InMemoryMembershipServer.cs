@@ -44,22 +44,18 @@
                 {
                     return this.CurrentTable[entryDTO.Utype] == null
                            || (this.HeartbeatInvalid(entryDTO.Utype, now) && entryDTO.LastSeenEntry != null && entryDTO.LastSeenEntry.IsEmpty)
-                           || (entryDTO.LastSeenEntry != null && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.LastSeenEntry.Uuid &&
-                           this.CurrentTable[entryDTO.Utype].Utype == entryDTO.LastSeenEntry.Utype && this.CurrentTable[entryDTO.Utype].TimeStamp == entryDTO.LastSeenEntry.TimeStamp 
-                           && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.Uuid && this.CurrentTable[entryDTO.Utype].Utype == entryDTO.Utype);
+                           || (this.LastSeenEntryValid(entryDTO.Utype, entryDTO.LastSeenEntry) && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.Uuid && this.CurrentTable[entryDTO.Utype].Utype == entryDTO.Utype);
                 }
                 else
                 {
                     return true;
                 }
-
             }
 
             if (!ValidInput())
             {
                 return;
             }
-
 
             lock (this.heartbeatLock)
             {
@@ -68,7 +64,7 @@
                     return;
                 }
 
-                this.Current = new HeartBeatEntry(entryDTO.Uuid, entryDTO.Utype, entryDTO.Unum, now);
+                this.Current = new HeartBeatEntry(entryDTO.Uuid, entryDTO.Utype, entryDTO.Uname, now);
 
                 this.CurrentTable[entryDTO.Utype] = this.Current;
             }
@@ -91,11 +87,26 @@
         private bool HeartbeatInvalid(string utype, DateTime now)
         {
             if (this.CurrentTable.ContainsKey(utype))
+            {
                 return this.CurrentTable[utype] == null || (now - this.CurrentTable[utype].TimeStamp >= this.Timeout);
+            }
             else
             {
                 return true;
             }
+        }
+
+        private bool LastSeenEntryValid(string utype, HeartBeatEntry LastSeenEntry)
+        {
+            if (this.CurrentTable.ContainsKey(utype))
+            {
+                return LastSeenEntry != null && this.CurrentTable[utype].Uuid == LastSeenEntry.Uuid &&
+                this.CurrentTable[utype].Utype == LastSeenEntry.Utype && this.CurrentTable[utype].TimeStamp == LastSeenEntry.TimeStamp;
+            }
+            else
+            {
+                return false;
+            }   
         }
     }
 }

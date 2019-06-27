@@ -1,6 +1,7 @@
 ﻿namespace HighAvailabilityModule.Sample.RestClient
 {
     using System;
+    using System.Collections;
     using System.Diagnostics;
     using System.Runtime.InteropServices.ComTypes;
     using System.Threading.Tasks;
@@ -14,34 +15,42 @@
         {
             // Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             string utype;
-            string unum;
+            string uname;
 
-            string[] AllType = new string[] { "A", "B" };
+            ArrayList AllType = new ArrayList();
 
             if (args.Length != 0)
             {
                 utype = args[1];
                 if (utype == "query")
-                    unum = "-1";
+                {
+                    uname = "-1";
+                    for (int i = 2; i < args.Length; i++)
+                    {
+                        AllType.Add(args[i]);
+                    }
+                } 
                 else
-                    unum = args[2];
+                {
+                    uname = args[2];
+                } 
             }
             else
             {
-                Console.WriteLine("Please give the client's type and machine num!");
+                Console.WriteLine("Please give the client's type and machine name!");
                 return;
             }
 
             var interval = TimeSpan.FromSeconds(1);
             var timeout = TimeSpan.FromSeconds(5);
 
-            RestMembershipClient client = new RestMembershipClient(utype, unum, interval);
+            RestMembershipClient client = new RestMembershipClient(utype, uname, interval);
 
             MembershipWithWitness algo = new MembershipWithWitness(client, interval, timeout);
 
             Console.WriteLine("Uuid:{0}",client.Uuid);
             Console.WriteLine("Type:{0}",client.Utype);
-            Console.WriteLine("Machine Num:{0}", client.Unum);
+            Console.WriteLine("Machine Num:{0}", client.Uname);
 
             if (client.Utype == "query")
             {
@@ -52,7 +61,7 @@
                         var primary = await client.GetHeartBeatEntryAsync(qtype);
                         if (!primary.IsEmpty)
                         {
-                            Console.WriteLine($"[Query Result] Type:{primary.Utype}. Machine Num:{primary.Unum}. Running as primary. [{primary.TimeStamp}]");
+                            Console.WriteLine($"[Query Result] Type:{primary.Utype}. Machine Num:{primary.Uname}. Running as primary. [{primary.TimeStamp}]");
                             await Task.Delay(TimeSpan.FromSeconds(2));
                         }
                     }
@@ -66,11 +75,8 @@
                     {
                         while (true)
                         {
-                            if (utype != "query")
-                            {
-                                Console.WriteLine($"Type:{client.Utype}. Machine Num:{client.Unum}. Running as primary. [{DateTime.UtcNow}]");
-                                await Task.Delay(TimeSpan.FromSeconds(2));
-                            }
+                            Console.WriteLine($"Type:{client.Utype}. Machine Num:{client.Uname}. Running as primary. [{DateTime.UtcNow}]");
+                            await Task.Delay(TimeSpan.FromSeconds(2));
                         }
                     }),
                 null);

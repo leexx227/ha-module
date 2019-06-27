@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HighAvailabilityModule.Interface
+﻿namespace HighAvailabilityModule.Interface
 {
     using System;
     public class HeartBeatEntryDTO
     {
-        public HeartBeatEntryDTO(string uuid, string utype, string unum, HeartBeatEntry lastSeenEntry)
+        public HeartBeatEntryDTO(string uuid, string utype, string uname, HeartBeatEntry lastSeenEntry)
         {
             this.Uuid = uuid;
             this.Utype = utype;
-            this.Unum = unum;
+            this.Uname = uname;
             this.LastSeenEntry = lastSeenEntry;
         }
 
@@ -19,7 +15,7 @@ namespace HighAvailabilityModule.Interface
 
         public string Utype { get; }
 
-        public string Unum { get; }
+        public string Uname { get; }
 
         public HeartBeatEntry LastSeenEntry { get; }
     }
