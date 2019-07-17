@@ -3,6 +3,7 @@ namespace HighAvailabilityModule.UnitTest
     using System;
     using System.Threading.Tasks;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     using HighAvailabilityModule.Algorithm;
     using HighAvailabilityModule.Client.InMemory;
@@ -230,6 +231,24 @@ namespace HighAvailabilityModule.UnitTest
             await task;
 
             Assert.IsFalse(this.algo.RunningAsPrimary(DateTime.UtcNow));
+        }
+
+        /// <summary>
+        /// Simulate network latency is at Interval * 0.9
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        [Timeout(10000)]
+        public async Task KeepPrimaryTest1()
+        {
+            await this.algo.GetPrimaryAsync();
+            this.server.ReplyDelay = Interval * 0.9;
+            this.algo.KeepPrimaryAsync();
+            await Task.Delay(Timeout * 3);
+            this.algo.Stop();
+            this.server.ReplyDelay = TimeSpan.Zero;
+           
+            Assert.IsTrue(this.algo.RunningAsPrimary(DateTime.UtcNow));
         }
     }
 }

@@ -58,7 +58,7 @@
         public void Stop()
         {
             this.AlgorithmCancellationTokenSource.Cancel();
-            Trace.TraceWarning($"[{this.Uuid}] Algorithm stopped");
+            Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Algorithm stopped");
         }
 
         internal async Task GetPrimaryAsync()
@@ -72,7 +72,7 @@
 
                 if (!this.PrimaryUp)
                 {
-                    Trace.TraceWarning($"[{this.Uuid}] Primary down");
+                    Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Primary down");
                     await this.HeartBeatAsPrimaryAsync();
                 }
             }
@@ -94,11 +94,11 @@
                     }
                 }
 
-                Trace.TraceInformation($"[{this.Uuid}] lastSeenHeartBeat = {this.lastSeenHeartBeat.Entry.Uuid}, {this.lastSeenHeartBeat.Entry.TimeStamp}");
+                Trace.TraceInformation($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] lastSeenHeartBeat = {this.lastSeenHeartBeat.Entry.Uuid}, {this.lastSeenHeartBeat.Entry.TimeStamp:O}");
             }
             catch (Exception ex)
             {
-                Trace.TraceWarning($"[{this.Uuid}] Error occured when getting heartbeat entry: {ex.ToString()}");
+                Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Error occured when getting heartbeat entry: {ex.ToString()}");
             }
         }
 
@@ -106,18 +106,20 @@
         {
             if (this.lastSeenHeartBeat.Entry == null)
             {
-                throw new InvalidOperationException($"[{this.Uuid}] Can't send heartbeat before querying current primary.");
+                throw new InvalidOperationException($"[Protocol][{this.Uuid}] Can't send heartbeat before querying current primary.");
             }
 
             try
             {
-                Trace.TraceInformation($"[{this.Uuid}] Sending heartbeat with UUID = {this.Uuid}, lastSeenHeartBeat = {this.lastSeenHeartBeat.Entry.Uuid}, {this.lastSeenHeartBeat.Entry.TimeStamp}");
-
+                var sendTime = DateTime.UtcNow;
+                Trace.TraceInformation($"[{sendTime:O}][Protocol][{this.Uuid}] Sending heartbeat with UUID = {this.Uuid} at localtime {sendTime:O}, lastSeenHeartBeat = {this.lastSeenHeartBeat.Entry.Uuid}, {this.lastSeenHeartBeat.Entry.TimeStamp:O}");
                 await this.Client.HeartBeatAsync(new HeartBeatEntryDTO (this.Uuid, this.Utype, this.Uname, this.lastSeenHeartBeat.Entry));
+                Trace.TraceInformation($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Sending heartbeat with UUID = {this.Uuid} at localtime {sendTime:O} completed");
+
             }
             catch (Exception ex)
             {
-                Trace.TraceWarning($"[{this.Uuid}] Error occured when updating heartbeat entry: {ex.ToString()}");
+                Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Error occured when updating heartbeat entry: {ex.ToString()}");
             }
         }
 
@@ -134,11 +136,23 @@
                 this.CheckPrimaryAsync(DateTime.UtcNow);
                 await Task.Delay(this.HeartBeatInterval, token);
             }
+
+            Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Lost Primary");
         }
 
         private bool PrimaryUp => this.lastSeenHeartBeat != default && !this.lastSeenHeartBeat.Entry.IsEmpty;
 
-        internal bool RunningAsPrimary(DateTime now) =>
-            this.PrimaryUp && this.lastSeenHeartBeat.Entry.Uuid == this.Uuid && now - this.lastSeenHeartBeat.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval);
+        internal bool RunningAsPrimary(DateTime now)
+        {
+            var primary = this.PrimaryUp && this.lastSeenHeartBeat.Entry.Uuid == this.Uuid && now - this.lastSeenHeartBeat.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval);
+            if (!primary)
+            {
+                Trace.TraceWarning(this.Dump() + $", UtcNow = {now:O}");
+            }
+
+            return primary;
+        }
+
+        public string Dump() => $"PrimaryUp = {this.PrimaryUp}, SelfUuid = {this.Uuid ?? string.Empty}, LastSeenUuid = {this.lastSeenHeartBeat.Entry?.Uuid ?? string.Empty}, LastSeenQueryTime = {this.lastSeenHeartBeat.QueryTime:O}";
     }
 }

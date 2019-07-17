@@ -1,8 +1,8 @@
 ﻿namespace HighAvailabilityModule.UnitTest
 {
-    using HighAvailabilityModule.Interface;
-
     using System.Collections.Generic;
+
+    using HighAvailabilityModule.Interface;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

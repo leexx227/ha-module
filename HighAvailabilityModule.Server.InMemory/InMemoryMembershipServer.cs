@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
 
@@ -14,6 +15,8 @@
         public Dictionary<string, HeartBeatEntry> CurrentTable { get; set; } = new Dictionary<string, HeartBeatEntry>() {};
 
         private TimeSpan Timeout { get; }
+
+        public TimeSpan ReplyDelay { get; set; } = TimeSpan.Zero;
 
         private object heartbeatLock = new object();
 
@@ -38,11 +41,19 @@
 
         public async Task HeartBeatAsync(HeartBeatEntryDTO entryDTO, DateTime now)
         {
+            Guid operationGuid = Guid.NewGuid();
+            Trace.TraceInformation($"[{now:O}][Server][{operationGuid}] Received Heart beat from {entryDTO.Uuid}, type {entryDTO.Utype}, machine {entryDTO.Uname}");
             bool ValidInput()
             {
-                return !this.CurrentTable.ContainsKey(entryDTO.Utype) || this.CurrentTable[entryDTO.Utype] == null
+                var valid = !this.CurrentTable.ContainsKey(entryDTO.Utype) || this.CurrentTable[entryDTO.Utype] == null
                         || (this.HeartbeatInvalid(entryDTO.Utype, now) && entryDTO.LastSeenEntry != null && entryDTO.LastSeenEntry.IsEmpty)
                         || (this.LastSeenEntryValid(entryDTO.Utype, entryDTO.LastSeenEntry) && this.CurrentTable[entryDTO.Utype].Uuid == entryDTO.Uuid && this.CurrentTable[entryDTO.Utype].Utype == entryDTO.Utype);
+                if (!valid)
+                {
+                    Trace.TraceInformation($"[{now:O}][Server][{operationGuid}] Heart beat invalid.");
+                }
+
+                return valid;
             }
 
             if (!ValidInput())
@@ -60,13 +71,18 @@
                 this.Current = new HeartBeatEntry(entryDTO.Uuid, entryDTO.Utype, entryDTO.Uname, now);
 
                 this.CurrentTable[entryDTO.Utype] = this.Current;
+                Trace.TraceInformation($"[{now:O}][Server][{operationGuid}] Current leader set to {entryDTO.Uuid}");
             }
+
+            await Task.Delay(this.ReplyDelay);
         }
 
         public Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype) => this.GetHeartBeatEntryAsync(utype, DateTime.UtcNow);
 
         public async Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype, DateTime now)
         {
+            await Task.Delay(this.ReplyDelay);
+
             if (this.HeartbeatInvalid(utype, now))
             {
                 return HeartBeatEntry.Empty;
