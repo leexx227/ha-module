@@ -42,16 +42,27 @@
 
         public async Task RunAsync(Func<Task> onStartAsync, Func<Task> onErrorAsync)
         {
-            await this.GetPrimaryAsync();
-            if (onStartAsync != null)
+            try
             {
-                onStartAsync();
-            }
+                await this.GetPrimaryAsync();
+                if (onStartAsync != null)
+                {
+                    ThreadPool.QueueUserWorkItem(_ => onStartAsync().GetAwaiter().GetResult());
+                }
 
-            await this.KeepPrimaryAsync();
-            if (onErrorAsync != null)
+                await this.KeepPrimaryAsync();
+            }
+            catch (Exception ex)
             {
-                await onErrorAsync();
+                Trace.TraceError($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}]Exception happen in RunAsync:{Environment.NewLine} {ex.ToString()}");
+                throw;
+            }
+            finally
+            {
+                if (onErrorAsync != null)
+                {
+                    await onErrorAsync();
+                }
             }
         }
 
