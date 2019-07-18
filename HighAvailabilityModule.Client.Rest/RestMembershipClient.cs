@@ -29,13 +29,27 @@
             this.Uname = uname;
         }
 
+        public RestMembershipClient()
+        {
+            this.httpClient = new HttpClient();
+            this.impl = new RestClientImpl(this.httpClient);
+        }
+
         public string BaseUri
         {
             get => this.impl.BaseUrl;
             set => this.impl.BaseUrl = value;
         }
 
-        public Task HeartBeatAsync(HeartBeatEntryDTO entryDTO) => this.impl.HeartBeatAsync(entryDTO);
+        public Task HeartBeatAsync(HeartBeatEntryDTO entryDTO)
+        {
+            if (this.Uuid == default || string.IsNullOrEmpty(this.Utype) || string.IsNullOrEmpty(this.Uname))
+            {
+                throw new InvalidOperationException("Can't sent heartbeat from a read only client.");
+            }
+
+            return this.impl.HeartBeatAsync(entryDTO);
+        }
 
         public Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype) => this.impl.GetHeartBeatEntryAsync(utype);
 

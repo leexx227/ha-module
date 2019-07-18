@@ -23,5 +23,7 @@
         public bool IsEmpty => string.IsNullOrEmpty(this.Uuid);
 
         public static HeartBeatEntry Empty { get; } = new HeartBeatEntry(string.Empty, string.Empty, string.Empty, default);
+
+        public override string ToString() => $"{this.Uuid} - {this.Utype} - {this.Uname} - {this.TimeStamp}";
     }
 }

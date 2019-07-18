@@ -158,7 +158,7 @@
             var primary = this.PrimaryUp && this.lastSeenHeartBeat.Entry.Uuid == this.Uuid && now - this.lastSeenHeartBeat.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval);
             if (!primary)
             {
-                Trace.TraceWarning(this.Dump() + $", UtcNow = {now:O}");
+                Trace.TraceInformation($"[{DateTime.UtcNow:O}][Protocol] Running as secondary {this.Dump()}.");
             }
 
             return primary;
