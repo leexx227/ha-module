@@ -1,4 +1,4 @@
-﻿namespace HighAvailabilityModule.E2ETest.TestCases
+﻿namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
 {
     using System;
     using System.Threading.Tasks;

@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HighAvailabilityModule.Algorithm\HighAvailabilityModule.Algorithm.csproj" />
     <ProjectReference Include="..\HighAvailabilityModule.Interface\HighAvailabilityModule.Interface.csproj" />
   </ItemGroup>
 

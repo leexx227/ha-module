@@ -9,11 +9,11 @@
 
     public class MembershipWithWitness
     {
-        private string Uuid { get; }
+        public string Uuid { get; }
 
-        private string Utype { get; }
+        public string Utype { get; }
 
-        private string Uname { get; }
+        public string Uname { get; }
 
         private IMembershipClient Client { get; }
 
@@ -23,7 +23,7 @@
 
         private (HeartBeatEntry Entry, DateTime QueryTime) lastSeenHeartBeat;
 
-        private object heartbeatLock = new object();
+        private readonly object heartbeatLock = new object();
 
         private CancellationTokenSource AlgorithmCancellationTokenSource { get; } = new CancellationTokenSource();
 
@@ -143,8 +143,10 @@
             while (this.RunningAsPrimary(DateTime.UtcNow))
             {
                 token.ThrowIfCancellationRequested();
+#pragma warning disable 4014
                 this.HeartBeatAsPrimaryAsync();
                 this.CheckPrimaryAsync(DateTime.UtcNow);
+#pragma warning restore 4014
                 await Task.Delay(this.HeartBeatInterval, token);
             }
 

@@ -1,9 +1,5 @@
-﻿namespace HighAvailabilityModule.E2ETest.TestCases
+﻿namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     public class NetworkConfiguration
     {
         public long LatencyLowerBound { get; set; } = 0;

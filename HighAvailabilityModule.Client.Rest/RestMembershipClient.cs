@@ -35,6 +35,8 @@
             this.impl = new RestClientImpl(this.httpClient);
         }
 
+        public static RestMembershipClient CreateNew(string utype, string uname, TimeSpan operationTimeout) => new RestMembershipClient(utype, uname, operationTimeout);
+
         public string BaseUri
         {
             get => this.impl.BaseUrl;

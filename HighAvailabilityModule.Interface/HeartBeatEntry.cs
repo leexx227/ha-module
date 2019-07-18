@@ -24,6 +24,23 @@
 
         public static HeartBeatEntry Empty { get; } = new HeartBeatEntry(string.Empty, string.Empty, string.Empty, default);
 
+        public override bool Equals(object obj)
+        {
+            if (obj is HeartBeatEntry that)
+            {
+                return this.Uuid == that.Uuid && this.Utype == that.Utype && this.Uname == that.Uname && this.TimeStamp == that.TimeStamp;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Uuid.GetHashCode() ^ this.TimeStamp.GetHashCode();
+        }
+
         public override string ToString() => $"{this.Uuid} - {this.Utype} - {this.Uname} - {this.TimeStamp}";
     }
 }
