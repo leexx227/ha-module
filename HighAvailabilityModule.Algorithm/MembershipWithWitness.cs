@@ -9,11 +9,11 @@
 
     public class MembershipWithWitness
     {
-        private string Uuid { get; }
+        public string Uuid { get; }
 
-        private string Utype { get; }
+        public string Utype { get; }
 
-        private string Uname { get; }
+        public string Uname { get; }
 
         private IMembershipClient Client { get; }
 
@@ -23,7 +23,7 @@
 
         private (HeartBeatEntry Entry, DateTime QueryTime) lastSeenHeartBeat;
 
-        private object heartbeatLock = new object();
+        private readonly object heartbeatLock = new object();
 
         private CancellationTokenSource AlgorithmCancellationTokenSource { get; } = new CancellationTokenSource();
 
@@ -42,16 +42,27 @@
 
         public async Task RunAsync(Func<Task> onStartAsync, Func<Task> onErrorAsync)
         {
-            await this.GetPrimaryAsync();
-            if (onStartAsync != null)
+            try
             {
-                onStartAsync();
-            }
+                await this.GetPrimaryAsync();
+                if (onStartAsync != null)
+                {
+                    ThreadPool.QueueUserWorkItem(_ => onStartAsync().GetAwaiter().GetResult());
+                }
 
-            await this.KeepPrimaryAsync();
-            if (onErrorAsync != null)
+                await this.KeepPrimaryAsync();
+            }
+            catch (Exception ex)
             {
-                await onErrorAsync();
+                Trace.TraceError($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}]Exception happen in RunAsync:{Environment.NewLine} {ex.ToString()}");
+                throw;
+            }
+            finally
+            {
+                if (onErrorAsync != null)
+                {
+                    await onErrorAsync();
+                }
             }
         }
 
@@ -132,8 +143,10 @@
             while (this.RunningAsPrimary(DateTime.UtcNow))
             {
                 token.ThrowIfCancellationRequested();
+#pragma warning disable 4014
                 this.HeartBeatAsPrimaryAsync();
                 this.CheckPrimaryAsync(DateTime.UtcNow);
+#pragma warning restore 4014
                 await Task.Delay(this.HeartBeatInterval, token);
             }
 
@@ -147,7 +160,7 @@
             var primary = this.PrimaryUp && this.lastSeenHeartBeat.Entry.Uuid == this.Uuid && now - this.lastSeenHeartBeat.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval);
             if (!primary)
             {
-                Trace.TraceWarning(this.Dump() + $", UtcNow = {now:O}");
+                Trace.TraceInformation($"[{DateTime.UtcNow:O}][Protocol] Running as secondary {this.Dump()}.");
             }
 
             return primary;

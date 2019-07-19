@@ -26,6 +26,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Sample.SQLClient", "HighAvailabilityModule.Sample.SQLClient\HighAvailabilityModule.Sample.SQLClient.csproj", "{3D379AD3-39F3-465B-96D7-446537BC0BC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.E2ETest.TestCases", "HighAvailabilityModule.E2ETest.TestCases\HighAvailabilityModule.E2ETest.TestCases.csproj", "{C652C471-3B88-430B-A94A-18F2297CCF10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.E2ETest.Runner", "HighAvailabilityModule.E2ETest.Runner\HighAvailabilityModule.E2ETest.Runner.csproj", "{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +76,14 @@ Global
 		{3D379AD3-39F3-465B-96D7-446537BC0BC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D379AD3-39F3-465B-96D7-446537BC0BC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D379AD3-39F3-465B-96D7-446537BC0BC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C652C471-3B88-430B-A94A-18F2297CCF10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C652C471-3B88-430B-A94A-18F2297CCF10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C652C471-3B88-430B-A94A-18F2297CCF10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C652C471-3B88-430B-A94A-18F2297CCF10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
