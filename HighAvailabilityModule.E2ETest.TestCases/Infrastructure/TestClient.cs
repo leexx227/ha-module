@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel.Design;
+    using System.Diagnostics;
     using System.Threading.Tasks;
 
     using HighAvailabilityModule.Interface;
@@ -27,33 +28,29 @@
 
         private bool MessageLost => new Random().NextDouble() < this.net.MessageLostRate;
 
-        public async Task HeartBeatAsync(HeartBeatEntryDTO entryDTO)
+        private async Task LoseMessage()
         {
             if (this.MessageLost)
             {
+                Trace.TraceInformation($"Message Lost: {this.membershipClientImplementation.Utype} - {this.membershipClientImplementation.Uname}");
+                Console.WriteLine($"Message Lost: {this.membershipClientImplementation.Utype} - {this.membershipClientImplementation.Uname}");
+
                 await Task.Delay(this.membershipClientImplementation.OperationTimeout);
                 throw new TimeoutException();
             }
+        }
 
+        public async Task HeartBeatAsync(HeartBeatEntryDTO entryDTO)
+        {
+            await this.LoseMessage();
             await this.membershipClientImplementation.HeartBeatAsync(entryDTO);
         }
 
         public async Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype)
         {
-            if (this.MessageLost)
-            {
-                await Task.Delay(this.membershipClientImplementation.OperationTimeout);
-                throw new TimeoutException();
-            }
-
+            await this.LoseMessage();
             var res = await this.membershipClientImplementation.GetHeartBeatEntryAsync(utype);
-
-            if (this.MessageLost)
-            {
-                await Task.Delay(this.membershipClientImplementation.OperationTimeout);
-                throw new TimeoutException();
-            }
-
+            await this.LoseMessage();
             return res;
         }
 
