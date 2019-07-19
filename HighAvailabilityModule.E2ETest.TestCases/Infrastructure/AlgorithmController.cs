@@ -48,7 +48,6 @@
             }
 
             Task.Run(this.FailProcess);
-            Task.Run(this.WatchResult);
         }
 
         public void CheckLiveness(HeartBeatEntry entry)
@@ -93,14 +92,25 @@
         {
             while (true)
             {
-                var entry = await this.judge.GetHeartBeatEntryAsync(this.Utype);
-                var livingClients = this.GetLivingClientIds();
-                Trace.TraceInformation($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} ");
-                Console.WriteLine($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} ");
+                try
+                {
+                    var entry = await this.judge.GetHeartBeatEntryAsync(this.Utype);
+                    var livingClients = this.GetLivingClientIds();
+                    Trace.TraceInformation($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} ");
+                    Console.WriteLine($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} ");
 
-                this.CheckLiveness(entry);
-
-                await Task.Delay(this.Interval * 2);
+                    this.CheckLiveness(entry);
+                }
+                
+                catch (Exception ex)
+                {
+                    Trace.TraceWarning(ex.ToString());
+                    Console.WriteLine(ex.ToString());
+                }
+                finally
+                {
+                    await Task.Delay(this.Interval * 2);
+                }
             }
         }
     }

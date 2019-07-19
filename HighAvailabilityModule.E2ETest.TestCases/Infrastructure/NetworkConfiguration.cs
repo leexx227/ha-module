@@ -7,5 +7,7 @@
         public long LatencyUpperBound { get; set; } = 0;
 
         public double MessageLostRate { get; set; } = 0;
+
+        public static readonly NetworkConfiguration Reliable = new NetworkConfiguration();
     }
 }

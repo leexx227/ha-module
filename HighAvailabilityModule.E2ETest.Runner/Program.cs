@@ -12,8 +12,7 @@
             var judge = new RestMembershipClient();
      
             var basictest = new BasicTest(RestMembershipClient.CreateNew, judge);
-            basictest.Start();
-            await Task.Delay(-1);
+            await basictest.Start();
         }
     }
 }

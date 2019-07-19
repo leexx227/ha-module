@@ -20,10 +20,11 @@
             this.judge = judge;
         }
 
-        public void Start()
+        public async Task Start()
         {
             AlgorithmController controller = new AlgorithmController(2, "A", TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(3), this.clientFactory, this.judge);
             Task.Run(controller.Start);
+            await Task.Run(controller.WatchResult);
         }
 
         private async Task ShowLeader()
