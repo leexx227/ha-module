@@ -1,23 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.438
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.UnitTest", "HighAvailabilityModule.UnitTest\HighAvailabilityModule.UnitTest.csproj", "{7E0D0DFF-37A5-4046-9C84-678CDC0FC97C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Interface", "HighAvailabilityModule.Interface\HighAvailabilityModule.Interface.csproj", "{7C1FC6C1-9274-44A2-BD6E-B440B3518140}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Interface", "HighAvailabilityModule.Interface\HighAvailabilityModule.Interface.csproj", "{7C1FC6C1-9274-44A2-BD6E-B440B3518140}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Algorithm", "HighAvailabilityModule.Algorithm\HighAvailabilityModule.Algorithm.csproj", "{BB47833D-5BA0-433C-A49D-39960C467668}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Client.InMemory", "HighAvailabilityModule.Client.InMemory\HighAvailabilityModule.Client.InMemory.csproj", "{985BBAC8-BB61-4C7B-9029-73B87137319A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Client.InMemory", "HighAvailabilityModule.Client.InMemory\HighAvailabilityModule.Client.InMemory.csproj", "{985BBAC8-BB61-4C7B-9029-73B87137319A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Server.InMemory", "HighAvailabilityModule.Server.InMemory\HighAvailabilityModule.Server.InMemory.csproj", "{70F2E2DF-9D60-4046-91AE-BE4EB8E83BB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Server.InMemory", "HighAvailabilityModule.Server.InMemory\HighAvailabilityModule.Server.InMemory.csproj", "{70F2E2DF-9D60-4046-91AE-BE4EB8E83BB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Server.Rest", "HighAvailabilityModule.Server.Rest\HighAvailabilityModule.Server.Rest.csproj", "{F288BA3B-A18F-4CD6-8678-CE56CC11D47C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Server.Rest", "HighAvailabilityModule.Server.Rest\HighAvailabilityModule.Server.Rest.csproj", "{F288BA3B-A18F-4CD6-8678-CE56CC11D47C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Client.Rest", "HighAvailabilityModule.Client.Rest\HighAvailabilityModule.Client.Rest.csproj", "{563A5EED-05A1-43AC-A6EF-9420D96FB1B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Client.Rest", "HighAvailabilityModule.Client.Rest\HighAvailabilityModule.Client.Rest.csproj", "{563A5EED-05A1-43AC-A6EF-9420D96FB1B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Sample.RestClient", "HighAvailabilityModule.Sample.RestClient\HighAvailabilityModule.Sample.RestClient.csproj", "{FD5E3B86-AB63-4570-835A-D92DD482CF92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Sample.RestClient", "HighAvailabilityModule.Sample.RestClient\HighAvailabilityModule.Sample.RestClient.csproj", "{FD5E3B86-AB63-4570-835A-D92DD482CF92}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Client.SQL", "HighAvailabilityModule.Client.SQL\HighAvailabilityModule.Client.SQL.csproj", "{D7E40007-9B94-4FC2-9265-2DE5D7207F15}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7C1FC6C1-9274-44A2-BD6E-B440B3518140} = {7C1FC6C1-9274-44A2-BD6E-B440B3518140}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Sample.SQLClient", "HighAvailabilityModule.Sample.SQLClient\HighAvailabilityModule.Sample.SQLClient.csproj", "{3D379AD3-39F3-465B-96D7-446537BC0BC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +64,14 @@ Global
 		{FD5E3B86-AB63-4570-835A-D92DD482CF92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD5E3B86-AB63-4570-835A-D92DD482CF92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD5E3B86-AB63-4570-835A-D92DD482CF92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7E40007-9B94-4FC2-9265-2DE5D7207F15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7E40007-9B94-4FC2-9265-2DE5D7207F15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7E40007-9B94-4FC2-9265-2DE5D7207F15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7E40007-9B94-4FC2-9265-2DE5D7207F15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D379AD3-39F3-465B-96D7-446537BC0BC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D379AD3-39F3-465B-96D7-446537BC0BC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D379AD3-39F3-465B-96D7-446537BC0BC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D379AD3-39F3-465B-96D7-446537BC0BC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
