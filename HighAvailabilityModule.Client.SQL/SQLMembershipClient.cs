@@ -25,14 +25,35 @@
 
         private const string GetHeartBeatSpName = "dbo.GetHeartBeat";
 
-        public SQLMembershipClient(string utype, string uname, TimeSpan operationTimeout, string server, string database)
+        public SQLMembershipClient(string utype, string uname, TimeSpan operationTimeout, string conStr)
         {
             this.Uuid = Guid.NewGuid().ToString();
             this.Utype = utype;
             this.Uname = uname;
             this.OperationTimeout = operationTimeout;
-            this.ConStr = "server=" + server + ";database=" + database + ";Trusted_Connection=SSPI;Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
+            if (conStr.IndexOf("Connect Timeout") == -1)
+            {
+                this.ConStr = conStr + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
+            }
+            else
+            {
+                this.ConStr = conStr.Substring(0, conStr.IndexOf("Connect Timeout")) + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
+            }
         }
+
+        public SQLMembershipClient(string conStr)
+        {
+            if (conStr.IndexOf("Connect Timeout") == -1)
+            {
+                this.ConStr = conStr + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
+            }
+            else
+            {
+                this.ConStr = conStr.Substring(0, conStr.IndexOf("Connect Timeout")) + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
+            }
+        }
+
+        public static SQLMembershipClient CreateNew(string utype, string uname, TimeSpan operationTimeout, string conStr) => new SQLMembershipClient(utype, uname, operationTimeout, conStr);
 
         public async Task HeartBeatAsync(HeartBeatEntryDTO entryDTO)
         {

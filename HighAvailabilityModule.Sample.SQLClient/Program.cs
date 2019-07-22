@@ -40,10 +40,9 @@
             var interval = TimeSpan.FromSeconds(0.2);
             var timeout = TimeSpan.FromSeconds(5);
 
-            string server = ".";
-            string database = "HighAvailabilityWitness";
+            string conStr = "server=.;database=HighAvailabilityWitness;Trusted_Connection=SSPI;Connect Timeout=30";
 
-            SQLMembershipClient client = new SQLMembershipClient(utype, uname, interval, server, database);
+            SQLMembershipClient client = new SQLMembershipClient(utype, uname, interval, conStr);
             MembershipWithWitness algo = new MembershipWithWitness(client, interval, timeout);
 
             Console.WriteLine("Uuid:{0}", client.Uuid);
