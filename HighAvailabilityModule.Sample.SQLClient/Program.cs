@@ -12,15 +12,17 @@
         {
             string utype;
             string uname;
+            string conStr;
 
             ArrayList AllType = new ArrayList();
 
-            if (args.Length >= 3)
+            if (args.Length >= 4)
             {
                 utype = args[1];
                 if (utype == "query")
                 {
                     uname = "-1";
+                    conStr = "0";
                     for (int i = 2; i < args.Length; i++)
                     {
                         AllType.Add(args[i]);
@@ -29,6 +31,7 @@
                 else
                 {
                     uname = args[2];
+                    conStr = args[3];
                 }
             }
             else
@@ -40,10 +43,7 @@
             var interval = TimeSpan.FromSeconds(0.2);
             var timeout = TimeSpan.FromSeconds(5);
 
-            string server = ".";
-            string database = "HighAvailabilityWitness";
-
-            SQLMembershipClient client = new SQLMembershipClient(utype, uname, interval, server, database);
+            SQLMembershipClient client = new SQLMembershipClient(utype, uname, interval, conStr);
             MembershipWithWitness algo = new MembershipWithWitness(client, interval, timeout);
 
             Console.WriteLine("Uuid:{0}", client.Uuid);

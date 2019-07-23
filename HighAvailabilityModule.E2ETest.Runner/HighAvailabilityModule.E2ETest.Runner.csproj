@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HighAvailabilityModule.Algorithm\HighAvailabilityModule.Algorithm.csproj" />
     <ProjectReference Include="..\HighAvailabilityModule.Client.Rest\HighAvailabilityModule.Client.Rest.csproj" />
+    <ProjectReference Include="..\HighAvailabilityModule.Client.SQL\HighAvailabilityModule.Client.SQL.csproj" />
     <ProjectReference Include="..\HighAvailabilityModule.E2ETest.TestCases\HighAvailabilityModule.E2ETest.TestCases.csproj" />
     <ProjectReference Include="..\HighAvailabilityModule.Server.Rest\HighAvailabilityModule.Server.Rest.csproj" />
   </ItemGroup>
