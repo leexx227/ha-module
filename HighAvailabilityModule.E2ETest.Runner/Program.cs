@@ -5,7 +5,7 @@
     using HighAvailabilityModule.Client.Rest;
     using HighAvailabilityModule.E2ETest.TestCases;
 
-    public class Program
+    public static class Program
     {
         public static async Task Main(string[] args)
         {

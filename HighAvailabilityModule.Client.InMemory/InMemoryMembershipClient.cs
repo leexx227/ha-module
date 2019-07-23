@@ -15,7 +15,7 @@
             this.Uname = uname;
         }
 
-        private IMembership serverImplementation;
+        private readonly IMembership serverImplementation;
 
         public string Uuid { get; }
 
