@@ -226,7 +226,7 @@ namespace HighAvailabilityModule.UnitTest
         {
             await this.algo.GetPrimaryAsync();
             var task = this.algo.KeepPrimaryAsync();
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
             this.server.RemoveCurrent();
             await task;
 
@@ -244,7 +244,7 @@ namespace HighAvailabilityModule.UnitTest
             await this.algo.GetPrimaryAsync();
             this.server.ReplyDelay = Interval * 0.9;
             this.algo.KeepPrimaryAsync();
-            await Task.Delay(Timeout * 3);
+            await Task.Delay(Timeout * 3).ConfigureAwait(false);
             this.algo.Stop();
             this.server.ReplyDelay = TimeSpan.Zero;
            

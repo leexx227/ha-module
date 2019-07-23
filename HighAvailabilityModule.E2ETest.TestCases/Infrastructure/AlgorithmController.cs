@@ -109,7 +109,7 @@
                 }
                 finally
                 {
-                    await Task.Delay(this.Interval * 2);
+                    await Task.Delay(this.Interval * 2).ConfigureAwait(false);
                 }
             }
         }

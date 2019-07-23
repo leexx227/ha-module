@@ -32,7 +32,7 @@
             while (true)
             {
                 Console.WriteLine(await judge.GetHeartBeatEntryAsync("A"));
-                await Task.Delay(1000);
+                await Task.Delay(1000).ConfigureAwait(false);
             }
         }
     }
