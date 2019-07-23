@@ -18,9 +18,23 @@
             string testType;
             string conStr;
 
+            IMembershipClient judge;
+            Func<string, string, TimeSpan, IMembershipClient> clientFactory;
+
+            if (args.Length<2 || args[1] == "help")
+            {
+                Console.WriteLine("HA-module E2ETest for basic & chaos test.");
+                Console.WriteLine("Args: ");
+                Console.WriteLine("Client Type:      rest/sql");
+                Console.WriteLine("Test Type:        basic/chaos");
+                Console.WriteLine("Connected String (required only for sql client)");
+                return;
+            }
+
             if (args.Length < 3)
             {
                 Console.WriteLine("Please give the test client type(rest/sql) and test type(basic/chaos).");
+                Console.WriteLine("Use \"help\" for usage help.");
                 return;
             }
             else
@@ -36,47 +50,46 @@
 
             if (clientType == "rest")
             {
-                var judge = new RestMembershipClient();
-                if (testType == "basic")
-                {
-                    var basictest = new BasicTest(RestMembershipClient.CreateNew, judge);
-                    await basictest.Start();
-                }
-                else if (testType == "chaos")
-                {
-                    var chaostest = new ChaosTest(RestMembershipClient.CreateNew, judge);
-                    await chaostest.Start();
-                }
-                else
-                {
-                    Console.WriteLine("Please give the supported test type.(basic/chaos)");
-                    return;
-                }
+                judge = new RestMembershipClient();
+                clientFactory = RestMembershipClient.CreateNew;
             }
             else if (clientType == "sql")
             {
-                conStr = "Data Source=10.0.0.4;User ID= hpcadmin;pwd=!!123abc!!123abc;database=HighAvailabilityWitness;Connect Timeout=30";
-
-                var judge = new SQLMembershipClient(conStr);
-                if (testType == "basic")
+                if (args.Length < 4)
                 {
-                    var basictest = new BasicTest((utype, uname, timeout) => SQLMembershipClient.CreateNew(utype, uname, timeout, conStr), judge);
-                    await basictest.Start();
-                }
-                else if (testType == "chaos")
-                {
-                    var chaostest = new ChaosTest((utype, uname, timeout) => SQLMembershipClient.CreateNew(utype, uname, timeout, conStr), judge);
-                    await chaostest.Start();
+                    Console.WriteLine("Please give the connected string for sql client.");
+                    Console.WriteLine("Use \"help\" for usage help.");
+                    return;
                 }
                 else
                 {
-                    Console.WriteLine("Please give the supported test type.(basic/chaos)");
-                    return;
+                    conStr = args[3];
+
+                    judge = new SQLMembershipClient(conStr);
+                    clientFactory = (utype, uname, timeout) => SQLMembershipClient.CreateNew(utype, uname, timeout, conStr);
                 }
             }
             else
             {
                 Console.WriteLine("Please give the supported test client type.(rest/sql)");
+                Console.WriteLine("Use \"help\" for usage help.");
+                return;
+            }
+
+            if (testType == "basic")
+            {
+                var basictest = new BasicTest(clientFactory, judge);
+                await basictest.Start();
+            }
+            else if (testType == "chaos")
+            {
+                var chaostest = new ChaosTest(clientFactory, judge);
+                await chaostest.Start();
+            }
+            else
+            {
+                Console.WriteLine("Please give the supported test type.(basic/chaos)");
+                Console.WriteLine("Use \"help\" for usage help.");
                 return;
             }
         }
