@@ -20,9 +20,9 @@
 
         public Func<string, string, TimeSpan, IMembershipClient> ClientFactory { get; }
 
-        private AlgorithmContainer[] containers;
+        private readonly AlgorithmContainer[] containers;
 
-        private IMembershipClient judge;
+        private readonly IMembershipClient judge;
 
         private HashSet<string> GetLivingClientIds() => this.containers.Select(c => c.Algo.Uuid).ToHashSet();
 
@@ -109,7 +109,7 @@
                 }
                 finally
                 {
-                    await Task.Delay(this.Interval * 2);
+                    await Task.Delay(this.Interval * 2).ConfigureAwait(false);
                 }
             }
         }

@@ -10,7 +10,7 @@
     [ApiController]
     public class MembershipController : ControllerBase, IMembership
     {
-        private IMembership membershipImpl;
+        private readonly IMembership membershipImpl;
 
         public MembershipController(IMembership membershipImplementation)
         {

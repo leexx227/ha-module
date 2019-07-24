@@ -10,9 +10,9 @@
 
     public class RestMembershipClient : IMembershipClient
     {
-        private RestClientImpl impl;
+        private readonly RestClientImpl impl;
 
-        private HttpClient httpClient;
+        private readonly HttpClient httpClient;
 
         public string Uuid { get; }
 
