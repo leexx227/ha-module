@@ -47,7 +47,7 @@
 
         public async Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype)
         {
-            await this.LoseMessage();
+            await this.LoseMessage().ConfigureAwait(false);
             var res = await this.membershipClientImplementation.GetHeartBeatEntryAsync(utype);
             await this.LoseMessage().ConfigureAwait(false);
             return res;
