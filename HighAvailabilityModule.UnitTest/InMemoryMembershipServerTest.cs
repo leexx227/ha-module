@@ -111,7 +111,7 @@
             var entry = await this.server.GetHeartBeatEntryAsync(ClientUtypeA, Now);
             Task[] tasks = new[] { this.server.HeartBeatAsync(new HeartBeatEntryDTO(Client2Uuid, ClientUtypeA, ClientUname2, entry), Now),
                 this.server.HeartBeatAsync(new HeartBeatEntryDTO(Client1Uuid, ClientUtypeA, ClientUname1, entry), Now) };
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
             TestAssistantPackage.AssertCurrentEntry(this.server.CurrentTable, Client2Uuid, ClientUtypeA, ClientUname2);
         }
 

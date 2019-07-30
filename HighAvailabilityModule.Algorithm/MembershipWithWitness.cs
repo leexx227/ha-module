@@ -44,13 +44,13 @@
         {
             try
             {
-                await this.GetPrimaryAsync();
+                await this.GetPrimaryAsync().ConfigureAwait(false);
                 if (onStartAsync != null)
                 {
                     ThreadPool.QueueUserWorkItem(_ => onStartAsync().GetAwaiter().GetResult());
                 }
 
-                await this.KeepPrimaryAsync();
+                await this.KeepPrimaryAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -61,7 +61,7 @@
             {
                 if (onErrorAsync != null)
                 {
-                    await onErrorAsync();
+                    await onErrorAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -79,12 +79,12 @@
             {
                 token.ThrowIfCancellationRequested();
                 await Task.Delay(this.HeartBeatInterval, token);
-                await this.CheckPrimaryAsync(DateTime.UtcNow);
+                await this.CheckPrimaryAsync(DateTime.UtcNow).ConfigureAwait(false);
 
                 if (!this.PrimaryUp)
                 {
                     Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Primary down");
-                    await this.HeartBeatAsPrimaryAsync();
+                    await this.HeartBeatAsPrimaryAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -147,7 +147,7 @@
                 this.HeartBeatAsPrimaryAsync();
                 this.CheckPrimaryAsync(DateTime.UtcNow);
 #pragma warning restore 4014
-                await Task.Delay(this.HeartBeatInterval, token);
+                await Task.Delay(this.HeartBeatInterval, token).ConfigureAwait(false);
             }
 
             Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Lost Primary");

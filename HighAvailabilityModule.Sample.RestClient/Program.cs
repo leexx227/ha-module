@@ -76,7 +76,7 @@
                         while (true)
                         {
                             Console.WriteLine($"Type:{client.Utype}. Machine Num:{client.Uname}. Running as primary. [{DateTime.UtcNow}]");
-                            await Task.Delay(TimeSpan.FromSeconds(2));
+                            await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
                         }
                     }),
                 null);

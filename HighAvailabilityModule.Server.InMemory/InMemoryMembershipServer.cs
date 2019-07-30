@@ -81,7 +81,7 @@
 
         public async Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype, DateTime now)
         {
-            await Task.Delay(this.ReplyDelay);
+            await Task.Delay(this.ReplyDelay).ConfigureAwait(false);
 
             if (this.HeartbeatInvalid(utype, now))
             {

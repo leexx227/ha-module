@@ -9,17 +9,16 @@
 
     public class TestClient : IMembershipClient
     {
-        public TestClient(IMembershipClient impl, NetworkConfiguration net = null)
+        public TestClient(IMembershipClient impl, NetworkConfiguration net)
         {
             this.membershipClientImplementation = impl;
-            if (net == null)
-            {
-                this.net = NetworkConfiguration.Reliable;
-            }
-            else
-            {
-                this.net = net;
-            }
+            this.net = net;
+        }
+
+        public TestClient(IMembershipClient impl)
+        {
+            this.membershipClientImplementation = impl;
+            this.net = NetworkConfiguration.Reliable;
         }
 
         private readonly IMembershipClient membershipClientImplementation;
@@ -35,7 +34,7 @@
                 Trace.TraceInformation($"Message Lost: {this.membershipClientImplementation.Utype} - {this.membershipClientImplementation.Uname}");
                 Console.WriteLine($"Message Lost: {this.membershipClientImplementation.Utype} - {this.membershipClientImplementation.Uname}");
 
-                await Task.Delay(this.membershipClientImplementation.OperationTimeout);
+                await Task.Delay(this.membershipClientImplementation.OperationTimeout).ConfigureAwait(false);
                 throw new TimeoutException();
             }
         }
@@ -48,9 +47,9 @@
 
         public async Task<HeartBeatEntry> GetHeartBeatEntryAsync(string utype)
         {
-            await this.LoseMessage();
+            await this.LoseMessage().ConfigureAwait(false);
             var res = await this.membershipClientImplementation.GetHeartBeatEntryAsync(utype);
-            await this.LoseMessage();
+            await this.LoseMessage().ConfigureAwait(false);
             return res;
         }
 
