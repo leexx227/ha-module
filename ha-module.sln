@@ -26,9 +26,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Sample.SQLClient", "HighAvailabilityModule.Sample.SQLClient\HighAvailabilityModule.Sample.SQLClient.csproj", "{3D379AD3-39F3-465B-96D7-446537BC0BC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.E2ETest.TestCases", "HighAvailabilityModule.E2ETest.TestCases\HighAvailabilityModule.E2ETest.TestCases.csproj", "{C652C471-3B88-430B-A94A-18F2297CCF10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.E2ETest.TestCases", "HighAvailabilityModule.E2ETest.TestCases\HighAvailabilityModule.E2ETest.TestCases.csproj", "{C652C471-3B88-430B-A94A-18F2297CCF10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.E2ETest.Runner", "HighAvailabilityModule.E2ETest.Runner\HighAvailabilityModule.E2ETest.Runner.csproj", "{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.E2ETest.Runner", "HighAvailabilityModule.E2ETest.Runner\HighAvailabilityModule.E2ETest.Runner.csproj", "{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Storage.Client", "HighAvailabilityModule.Storage.Client\HighAvailabilityModule.Storage.Client.csproj", "{664CE8D6-0BCC-4F44-976B-173515A27D3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailablityModule.Storage.Sample.Client", "HighAvailablityModule.Storage.Sample.Client\HighAvailablityModule.Storage.Sample.Client.csproj", "{0C80FCA0-6492-42C1-8593-06B6908F9A5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +88,14 @@ Global
 		{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{664CE8D6-0BCC-4F44-976B-173515A27D3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{664CE8D6-0BCC-4F44-976B-173515A27D3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{664CE8D6-0BCC-4F44-976B-173515A27D3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{664CE8D6-0BCC-4F44-976B-173515A27D3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C80FCA0-6492-42C1-8593-06B6908F9A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C80FCA0-6492-42C1-8593-06B6908F9A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C80FCA0-6492-42C1-8593-06B6908F9A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C80FCA0-6492-42C1-8593-06B6908F9A5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
