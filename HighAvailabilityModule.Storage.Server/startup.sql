@@ -2,11 +2,14 @@ IF OBJECT_ID('DataTable') IS NOT NULL
 	DROP TABLE DataTable;
 GO
 CREATE TABLE DataTable
-(dpath nvarchar(50),
-dkey nvarchar(50),
+(dpath nvarchar(50) NOT NULL,
+dkey nvarchar(50) NOT NULL,
 dvalue nvarchar(50),
-dtype nvarchar(50)
+dtype nvarchar(50),
+timestamp datetime
 );
+GO
+ALTER TABLE DataTable ADD PRIMARY KEY(dpath, dkey)
 GO
 
 IF OBJECT_ID('GetDataEntry') IS NOT NULL
@@ -20,6 +23,17 @@ AS
 	SELECT dvalue, dtype FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
 GO
 
+IF OBJECT_ID('GetDataTime') IS NOT NULL
+	DROP PROCEDURE GetDataTime;
+GO
+CREATE PROCEDURE GetDataTime
+	@dpath nvarchar(50),
+	@dkey nvarchar(50)
+AS
+	SET NOCOUNT ON
+	SELECT timestamp FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
+GO
+
 IF OBJECT_ID('SetDataEntry') IS NOT NULL
 	DROP PROCEDURE SetDataEntry;
 GO
@@ -28,17 +42,26 @@ CREATE PROCEDURE SetDataEntry
 	@dkey nvarchar(50),
 	@dvalue nvarchar(50),
 	@dtype nvarchar(50),
-	@lastSeenValue nvarchar(50),
-	@lastSeenType nvarchar(50)
+	@lastOperationTime datetime,
+	@now datetime = NULL
 AS
-	SET NOCOUNT ON
-	IF NOT EXISTS (SELECT * FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey)
-		INSERT INTO dbo.DataTable (dpath, dkey, dvalue, dtype) 
-		VALUES (@dpath, @dkey, @dvalue, @dtype);
-	ELSE
-		UPDATE dbo.DataTable
-		SET dpath = @dpath, dkey = @dkey, dvalue = @dvalue, dtype = @dtype
-		WHERE dpath = @dpath AND dkey = @dkey AND dvalue = @lastSeenValue AND dtype = @lastSeenType;
+	BEGIN TRY
+		BEGIN TRAN
+			SET NOCOUNT ON
+			IF @now IS NULL
+				SET @now = GETDATE();
+			IF NOT EXISTS (SELECT * FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey)
+				INSERT INTO dbo.DataTable (dpath, dkey, dvalue, dtype, timestamp) 
+				VALUES (@dpath, @dkey, @dvalue, @dtype, @now);
+			ELSE
+				UPDATE dbo.DataTable
+				SET dpath = @dpath, dkey = @dkey, dvalue = @dvalue, dtype = @dtype, timestamp = @now
+				WHERE dpath = @dpath AND dkey = @dkey AND timestamp = @lastOperationTime;
+		COMMIT TRAN
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRAN
+	END CATCH
 GO
 
 IF OBJECT_ID('DeleteDataEntry') IS NOT NULL
@@ -46,12 +69,10 @@ IF OBJECT_ID('DeleteDataEntry') IS NOT NULL
 GO
 CREATE PROCEDURE DeleteDataEntry
 	@dpath nvarchar(50),
-	@dkey nvarchar(50),
-	@lastSeenValue nvarchar(50),
-	@lastSeenType nvarchar(50)
+	@dkey nvarchar(50)
 AS
 	SET NOCOUNT ON
-	DELETE dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey AND dvalue = @lastSeenValue AND dtype = @lastSeenType;
+	DELETE dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
 GO
 
 IF OBJECT_ID('EnumerateDataEntry') IS NOT NULL

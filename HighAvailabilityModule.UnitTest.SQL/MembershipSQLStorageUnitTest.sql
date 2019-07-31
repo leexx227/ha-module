@@ -53,25 +53,26 @@ BEGIN
 	DECLARE @dkey nvarchar(50);
 	DECLARE @dvalue nvarchar(50);
 	DECLARE @dtype nvarchar(50);
-	DECLARE @lastSeenValue nvarchar(50);
-	DECLARE @lastSeenType nvarchar(50);
+	DECLARE @lastOperationTime datetime;
+	DECLARE @now datetime;
 	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
 	(dpath nvarchar(50),
 	dkey nvarchar(50),
 	dvalue nvarchar(50),
-	dtype nvarchar(50)
+	dtype nvarchar(50),
+	timestamp datetime
 	);
 
 	SET @dpath = 'local\hpc';
 	SET @dkey = 'A';
 	SET @dvalue = '111';
 	SET @dtype = 'System.String';
-	SET @lastSeenValue = '';
-	SET @lastSeenType = '';
-
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue, @dtype, @lastSeenValue, @lastSeenType;
-	SELECT dpath, dkey, dvalue, dtype INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
-	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype) VALUES(@dpath, @dkey, @dvalue, @dtype);
+	SET @lastOperationTime = '';
+	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue, @dtype, @lastOperationTime, @now;
+	
+	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
+	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue, @dtype, @now);
 
 	EXEC tSQLt.AssertEqualsTable MembershipSQLStorageUnitTest_Excepted, MembershipSQLStorageUnitTest_Actual;
 END
@@ -91,17 +92,17 @@ BEGIN
 	DECLARE @dvalue1 nvarchar(50);
 	DECLARE @dvalue2 nvarchar(50);
 	DECLARE @dtype nvarchar(50);
-	DECLARE @lastSeenValue nvarchar(50);
-	DECLARE @lastSeenType nvarchar(50);
+	DECLARE @lastOperationTime datetime;
+	DECLARE @now datetime;
 	DECLARE @TempTable TABLE
-	(lastSeenValue nvarchar(50),
-	lastSeenType nvarchar(50)
-	);
+	(lastOperationTime datetime
+	)
 	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
 	(dpath nvarchar(50),
 	dkey nvarchar(50),
 	dvalue nvarchar(50),
-	dtype nvarchar(50)
+	dtype nvarchar(50),
+	timestamp datetime
 	);
 
 	SET @dpath = 'local\hpc';
@@ -109,15 +110,15 @@ BEGIN
 	SET @dvalue1 = '111';
 	SET @dvalue2 = '222';
 	SET @dtype = 'System.String';
+	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
 
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, '', '';
-	INSERT INTO @TempTable EXEC dbo.GetDataEntry @dpath, @dkey;
-	SELECT @lastSeenValue = lastSeenValue FROM @TempTable;
-	SELECT @lastSeenType = lastSeenType FROM @TempTable;
-
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @lastSeenValue, @lastSeenType;
-	SELECT dpath, dkey, dvalue, dtype INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
-	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype) VALUES(@dpath, @dkey, @dvalue2, @dtype);
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, '';
+	INSERT INTO @TempTable  EXEC dbo.GetDataTime @dpath, @dkey;
+	SELECT @lastOperationTime = lastOperationTime FROM @TempTable;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @lastOperationTime, @now;
+	
+	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
+	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue2, @dtype, @now);
 
 	EXEC tSQLt.AssertEqualsTable MembershipSQLStorageUnitTest_Excepted, MembershipSQLStorageUnitTest_Actual;
 END
@@ -136,37 +137,28 @@ BEGIN
 	DECLARE @dkey nvarchar(50);
 	DECLARE @dvalue1 nvarchar(50);
 	DECLARE @dvalue2 nvarchar(50);
-	DECLARE @dvalue3 nvarchar(50);
-	DECLARE @dtype nvarchar(50);
-	DECLARE @lastSeenValue nvarchar(50);
-	DECLARE @lastSeenType nvarchar(50);
-	DECLARE @TempTable TABLE
-	(lastSeenValue nvarchar(50),
-	lastSeenType nvarchar(50)
-	);
+	DECLARE @dtype1 nvarchar(50);
+	DECLARE @now datetime;
 	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
 	(dpath nvarchar(50),
 	dkey nvarchar(50),
 	dvalue nvarchar(50),
-	dtype nvarchar(50)
+	dtype nvarchar(50),
+	timestamp datetime
 	);
 
 	SET @dpath = 'local\hpc';
 	SET @dkey = 'A';
 	SET @dvalue1 = '111';
 	SET @dvalue2 = '222';
-	SET @dvalue3 = '333';
-	SET @dtype = 'System.String';
+	SET @dtype1 = 'System.String';
+	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
 
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, '', '';
-	INSERT INTO @TempTable EXEC dbo.GetDataEntry @dpath, @dkey;
-	SELECT @lastSeenValue = lastSeenValue FROM @TempTable;
-	SELECT @lastSeenType = lastSeenType FROM @TempTable;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype1, '', @now;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype1, '', @now;
 
-	UPDATE dbo.DataTable SET dvalue = @dvalue3 WHERE dpath = @dpath AND dkey = @dkey;
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @lastSeenValue, @lastSeenType;
-	SELECT dpath, dkey, dvalue, dtype INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
-	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype) VALUES(@dpath, @dkey, @dvalue3, @dtype);
+	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
+	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue1, @dtype1, @now);
 
 	EXEC tSQLt.AssertEqualsTable MembershipSQLStorageUnitTest_Excepted, MembershipSQLStorageUnitTest_Actual;
 END
@@ -185,37 +177,37 @@ BEGIN
 	DECLARE @dkey nvarchar(50);
 	DECLARE @dvalue1 nvarchar(50);
 	DECLARE @dvalue2 nvarchar(50);
-	DECLARE @dtype1 nvarchar(50);
-	DECLARE @dtype2 nvarchar(50);
-	DECLARE @lastSeenValue nvarchar(50);
-	DECLARE @lastSeenType nvarchar(50);
+	DECLARE @dtype nvarchar(50);
+	DECLARE @lastOperationTime datetime;
+	DECLARE @now datetime;
+	DECLARE @newTime datetime;
 	DECLARE @TempTable TABLE
-	(lastSeenValue nvarchar(50),
-	lastSeenType nvarchar(50)
+	(lastOperationTime datetime
 	);
 	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
 	(dpath nvarchar(50),
 	dkey nvarchar(50),
 	dvalue nvarchar(50),
-	dtype nvarchar(50)
+	dtype nvarchar(50),
+	timestamp datetime
 	);
 
 	SET @dpath = 'local\hpc';
 	SET @dkey = 'A';
 	SET @dvalue1 = '111';
 	SET @dvalue2 = '222';
-	SET @dtype1 = 'System.String';
-	SET @dtype1 = 'System.Int32';
+	SET @dtype = 'System.String';
+	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
+	SET @newTime = CONVERT(DATETIME,'2019-08-01 12:00:00.000',21);
 
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype1, '', '';
-	INSERT INTO @TempTable EXEC dbo.GetDataEntry @dpath, @dkey;
-	SELECT @lastSeenValue = lastSeenValue FROM @TempTable;
-	SELECT @lastSeenType = lastSeenType FROM @TempTable;
-
-	UPDATE dbo.DataTable SET dtype = @dtype2 WHERE dpath = @dpath AND dkey = @dkey;
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype1, @lastSeenValue, @lastSeenType;
-	SELECT dpath, dkey, dvalue, dtype INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
-	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype) VALUES(@dpath, @dkey, @dvalue1, @dtype2);
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, '';
+	INSERT INTO @TempTable EXEC dbo.GetDataTime @dpath, @dkey;
+	SELECT @lastOperationTime = lastOperationTime FROM @TempTable;
+	UPDATE dbo.DataTable SET timestamp = @newTime WHERE dpath = @dpath AND dkey = @dkey;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @now;
+	
+	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
+	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue1, @dtype, @newTime);
 
 	EXEC tSQLt.AssertEqualsTable MembershipSQLStorageUnitTest_Excepted, MembershipSQLStorageUnitTest_Actual;
 END
@@ -234,13 +226,8 @@ BEGIN
 	DECLARE @dkey nvarchar(50);
 	DECLARE @dvalue nvarchar(50);
 	DECLARE @dtype nvarchar(50);
-	DECLARE @lastSeenValue nvarchar(50);
-	DECLARE @lastSeenType nvarchar(50);
+	DECLARE @now datetime;
 	DECLARE @Actual int;
-	DECLARE @TempTable TABLE
-	(lastSeenValue nvarchar(50),
-	lastSeenType nvarchar(50)
-	);
 	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
 	(dpath nvarchar(50),
 	dkey nvarchar(50),
@@ -252,14 +239,12 @@ BEGIN
 	SET @dkey = 'A';
 	SET @dvalue = '111';
 	SET @dtype = 'System.String';
+	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
 
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue, @dtype, '', '';
-	INSERT INTO @TempTable EXEC dbo.GetDataEntry @dpath, @dkey;
-	SELECT @lastSeenValue = lastSeenValue FROM @TempTable;
-	SELECT @lastSeenType = lastSeenType FROM @TempTable;
-	EXEC dbo.DeleteDataEntry @dpath, @dkey, @lastSeenValue, @lastSeenType;
+	INSERT INTO dbo.DataTable(dpath, dkey, dvalue, dtype,timestamp) VALUES(@dpath, @dkey, @dvalue, @dtype, @now);
 
-	SELECT dpath, dkey, dvalue, dtype INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
+	EXEC dbo.DeleteDataEntry @dpath, @dkey;
+
 	SELECT @Actual = COUNT(*) FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
 
 	EXEC tSQLt.AssertEquals 0, @Actual;
@@ -282,8 +267,7 @@ BEGIN
 	DECLARE @dvalue2 nvarchar(50);
 	DECLARE @dtype1 nvarchar(50);
 	DECLARE @dtype2 nvarchar(50);
-	DECLARE @lastSeenValue nvarchar(50);
-	DECLARE @lastSeenType nvarchar(50);
+	DECLARE @now datetime;
 	DECLARE @TempTable TABLE
 	(dkey nvarchar(50)
 	);
@@ -293,14 +277,15 @@ BEGIN
 
 	SET @dpath = 'local\hpc';
 	SET @dkeyA = 'A';
-	SET @dkeyA = 'B';
+	SET @dkeyB = 'B';
 	SET @dvalue1 = '111';
 	SET @dvalue2 = '222';
 	SET @dtype1 = 'System.String';
 	SET @dtype1 = 'System.Int32';
+	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
 
-	INSERT INTO dbo.DataTable (dpath, dkey, dvalue, dtype) VALUES(@dpath, @dkeyA, @dvalue1, @dtype1);
-	INSERT INTO dbo.DataTable (dpath, dkey, dvalue, dtype) VALUES(@dpath, @dkeyB, @dvalue2, @dtype2);
+	INSERT INTO dbo.DataTable (dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkeyA, @dvalue1, @dtype1, @now);
+	INSERT INTO dbo.DataTable (dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkeyB, @dvalue2, @dtype2, @now);
 	INSERT INTO @TempTable EXEC dbo.EnumerateDataEntry @dpath;
 
 	SELECT dkey INTO MembershipSQLStorageUnitTest_Actual FROM @TempTable;

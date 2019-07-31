@@ -9,7 +9,7 @@
     {
         TimeSpan OperationTimeout { get; set; }
 
-        Task<(string, string)> GetDataEntryAsync(string path, string key);
+        Task<(string value, string type)> GetDataEntryAsync(string path, string key);
         Task<Guid> TryGetGuid(string path, string key);
         Task<string> TryGetString(string path, string key);
         Task<int> TryGetInt(string path, string key);
@@ -18,7 +18,6 @@
         Task<string[]> TryGetStringArray(string path, string key);
         Task<byte[]> TryGetByteArray(string path, string key);
 
-        Task SetDataEntryAsync(string path, string key, string value, string type);
         Task SetGuid(string path, string key, Guid value);
         Task SetString(string path, string key, string value);
         Task SetInt(string path, string key, int value);
@@ -31,6 +30,6 @@
 
         Task<List<string>> EnumerateDataEntryAsync(string path);
 
-        Task Monitor(string path, string key, Action<string,string> callback);
+        Task Monitor(string path, string key, TimeSpan interval, Action<string, string> callback);
     }
 }
