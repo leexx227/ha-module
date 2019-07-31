@@ -90,11 +90,6 @@ steps:
     htmlReportsOutput: '$(System.DefaultWorkingDirectory)/AzurePipelines'
     testOrClassName: '123'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/TEST-*.xml'
-
 # - task: PublishCodeCoverageResults@1
 #   inputs:
 #     codeCoverageTool: 'Cobertura'
@@ -136,3 +131,19 @@ steps:
     deployType: 'SqlTask'
     SqlFile: '$(System.DefaultWorkingDirectory)/HighAvailabilityModule.UnitTest.SQL/MembershipSQLStorageUnitTest.sql'
     IpDetectionMethod: 'AutoDetect'
+
+- task: runtsqltunittests@0
+  inputs:
+    connectionString: 'Server=tcp:ha-module-server.database.windows.net,1433;Initial Catalog=HighAvailabilityStorage;Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+    queryTimeout: '60'
+    rootOutput: '$(System.DefaultWorkingDirectory)/tSQLt-out'
+    testResultsFileName: 'TEST-Results2.xml'
+    enableCodeCoverage: false
+    coberturaFileName: 'Cobertura2.xml'
+    htmlReportsOutput: '$(System.DefaultWorkingDirectory)/AzurePipelines2'
+    testOrClassName: '123'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
