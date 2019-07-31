@@ -17,6 +17,7 @@
             }
 
             var timeout = TimeSpan.FromSeconds(0.2);
+            var interval = TimeSpan.FromSeconds(0.1);
 
             SQLStorageMembershipClient client = new SQLStorageMembershipClient(conStr, timeout);
 
@@ -25,7 +26,7 @@
             string keyA = "A";
             string keyB = "B";
             string value = "111";
-            client.Monitor(path, keyA, client.Callback);
+            client.Monitor(path, keyA, interval, client.Callback);
 
             //SetMethod
             try

@@ -12,6 +12,7 @@
     using System.Runtime.CompilerServices;
     using System.Collections;
     using System.Runtime.InteropServices;
+    using System.Diagnostics;
 
     public class SQLStorageMembershipClient : IMembershipStorageClient
     {
@@ -19,25 +20,28 @@
 
         public TimeSpan OperationTimeout { get; set; }
 
+        private string timeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+
+        private static string DefaultTime = "1753-01-01 12:00:00.000";
+
         private const string GetDataEntrySpName = "dbo.GetDataEntry";
+
         private const string SetDataEntrySpName = "dbo.SetDataEntry";
+
         private const string DeleteDataEntrySpName = "dbo.DeleteDataEntry";
+
         private const string EnumerateDataEntrySpName = "dbo.EnumerateDataEntry";
+
+        private const string GetDataTimeSpName = "dbo.GetDataTime";
 
         public SQLStorageMembershipClient(string conStr, TimeSpan operationTimeout)
         {
             this.OperationTimeout = operationTimeout;
-            if (conStr.IndexOf("Connect Timeout") == -1)
-            {
-                this.ConStr = conStr + ";Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
-            }
-            else
-            {
-                this.ConStr = conStr.Substring(0, conStr.IndexOf("Connect Timeout")) + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
-            }
+            this.ConStr = (conStr.IndexOf("Connect Timeout") == -1 ? conStr: conStr.Substring(0, conStr.IndexOf("Connect Timeout"))) 
+                + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString(); ;
         }
 
-        public async Task <(string, string)> GetDataEntryAsync(string path, string key)
+        public async Task <(string value, string type)> GetDataEntryAsync(string path, string key)
         {
             string value;
             string type;
@@ -70,7 +74,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occured when getting data entry: {ex.ToString()}");
+                Trace.TraceError($"Error occured when getting data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when getting data entry: {ex.ToString()}");
             }
             finally
@@ -93,7 +97,7 @@
             }
             else
             {
-                throw new FormatException("Input value is not Guid.");
+                throw new InvalidOperationException("Input value is not Guid.");
             }
         }
 
@@ -109,7 +113,7 @@
             }
             else
             {
-                throw new FormatException("Input value is not string.");
+                throw new InvalidOperationException("Input value is not string.");
             }
         }
 
@@ -125,7 +129,7 @@
             }
             else
             {
-                throw new FormatException("Input value is not int.");
+                throw new InvalidOperationException("Input value is not int.");
             }
         }
 
@@ -141,7 +145,7 @@
             }
             else
             {
-                throw new FormatException("Input value is not long.");
+                throw new InvalidOperationException("Input value is not long.");
             }
         }
 
@@ -157,7 +161,7 @@
             }
             else
             {
-                throw new FormatException("Input value is not double.");
+                throw new InvalidOperationException("Input value is not double.");
             }
         }
 
@@ -173,7 +177,7 @@
             }
             else
             {
-                throw new FormatException("Input value is not string[].");
+                throw new InvalidOperationException("Input value is not string[].");
             }
         }
 
@@ -195,15 +199,54 @@
             }
             else
             {
-                throw new FormatException("Input value is not byte[].");
+                throw new InvalidOperationException("Input value is not byte[].");
+            }
+        }
+
+        private async Task<DateTime> GetDataTimeAsync(string path, string key)
+        {
+            string lastOperationTime;
+            SqlConnection con = new SqlConnection(this.ConStr);
+            string StoredProcedure = GetDataTimeSpName;
+            SqlCommand comStr = new SqlCommand(StoredProcedure, con);
+            comStr.CommandType = CommandType.StoredProcedure;
+            comStr.CommandTimeout = Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds));
+
+            comStr.Parameters.Add("@dpath", SqlDbType.NVarChar).Value = path;
+            comStr.Parameters.Add("@dkey", SqlDbType.NVarChar).Value = key;
+
+            try
+            {
+                await con.OpenAsync();
+                SqlDataReader ReturnedValue = await comStr.ExecuteReaderAsync();
+                if (ReturnedValue.HasRows)
+                {
+                    ReturnedValue.Read();
+                    lastOperationTime = ReturnedValue[0].ToString();
+                    ReturnedValue.Close();
+                }
+                else
+                {
+                    lastOperationTime = DefaultTime;
+                }
+                return Convert.ToDateTime(Convert.ToDateTime(lastOperationTime).ToString(this.timeFormat));
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError($"Error occured when getting last operation time: {ex.ToString()}");
+                throw new InvalidOperationException($"Error occured when getting last operation time: {ex.ToString()}");
+            }
+            finally
+            {
+                con.Close();
+                con.Dispose();
+                comStr.Dispose();
             }
         }
 
         public async Task SetDataEntryAsync(string path, string key, string value, string type)
         {
-            var getDataEntry = await GetDataEntryAsync(path, key);
-            string lastSeenValue = getDataEntry.Item1;
-            string lastSeenType = getDataEntry.Item2;
+            DateTime lastOperationTime = await GetDataTimeAsync(path, key);
 
             SqlConnection con = new SqlConnection(this.ConStr);
             string StoredProcedure = SetDataEntrySpName;
@@ -215,8 +258,7 @@
             comStr.Parameters.Add("@dkey", SqlDbType.NVarChar).Value = key;
             comStr.Parameters.Add("@dvalue", SqlDbType.NVarChar).Value = value;
             comStr.Parameters.Add("@dtype", SqlDbType.NVarChar).Value = type;
-            comStr.Parameters.Add("@lastSeenValue", SqlDbType.NVarChar).Value = lastSeenValue;
-            comStr.Parameters.Add("@lastSeenType", SqlDbType.NVarChar).Value = lastSeenType;
+            comStr.Parameters.Add("@lastOperationTime", SqlDbType.NVarChar).Value = lastOperationTime;
 
             try
             {
@@ -225,7 +267,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occured when setting data entry: {ex.ToString()}");
+                Trace.TraceError($"Error occured when setting data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when setting data entry: {ex.ToString()}");
             }
             finally
@@ -238,45 +280,41 @@
 
         public async Task SetGuid(string path, string key, Guid value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), value.GetType().ToString());
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Guid");
         }
 
         public async Task SetString(string path, string key, string value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), value.GetType().ToString());
+            await SetDataEntryAsync(path, key, value, "System.String");
         }
 
         public async Task SetInt(string path, string key, int value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), value.GetType().ToString());
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Int32");
         }
 
         public async Task SetLong(string path, string key, long value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), value.GetType().ToString());
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Int64");
         }
 
         public async Task SetDouble(string path, string key, double value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), value.GetType().ToString());
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Double");
         }
 
         public async Task SetStringArray(string path, string key, string[] value)
         {
-            await SetDataEntryAsync(path, key, string.Join(",", value), value.GetType().ToString());
+            await SetDataEntryAsync(path, key, string.Join(",", value), "System.String[]");
         }
 
         public async Task SetByteArray(string path, string key, byte[] value)
         {
-            await SetDataEntryAsync(path, key, string.Join(",", value), value.GetType().ToString());
+            await SetDataEntryAsync(path, key, string.Join(",", value), "System.Byte[]");
         }
 
         public async Task DeleteDataEntry(string path, string key)
         {
-            var getDataEntry = await GetDataEntryAsync(path, key);
-            string lastSeenValue = getDataEntry.Item1;
-            string lastSeenType = getDataEntry.Item2;
-
             SqlConnection con = new SqlConnection(this.ConStr);
             string StoredProcedure = DeleteDataEntrySpName;
             SqlCommand comStr = new SqlCommand(StoredProcedure, con);
@@ -285,8 +323,6 @@
 
             comStr.Parameters.Add("@dpath", SqlDbType.NVarChar).Value = path;
             comStr.Parameters.Add("@dkey", SqlDbType.NVarChar).Value = key;
-            comStr.Parameters.Add("@lastSeenValue", SqlDbType.NVarChar).Value = lastSeenValue;
-            comStr.Parameters.Add("@lastSeenType", SqlDbType.NVarChar).Value = lastSeenType;
 
             try
             {
@@ -295,7 +331,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occured when deleting data entry: {ex.ToString()}");
+                Trace.TraceError($"Error occured when deleting data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when deleting data entry: {ex.ToString()}");
             }
             finally
@@ -334,7 +370,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occured when enumerating data entry: {ex.ToString()}");
+                Trace.TraceError($"Error occured when enumerating data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when enumerating data entry: {ex.ToString()}");
             }
             finally
@@ -345,7 +381,7 @@
             }
         }
 
-        public async Task Monitor(string path, string key, Action<string, string> callback)
+        public async Task Monitor(string path, string key, TimeSpan interval, Action<string, string> callback)
         {
             string lastSeenValue = string.Empty;
             string lastSeenType = string.Empty;
@@ -366,12 +402,12 @@
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error occured {ex.ToString()}");
+                    Trace.TraceError($"Error occured {ex.ToString()}");
                     throw;
                 }
                 finally
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    await Task.Delay(interval);
                 }
             }
         }
