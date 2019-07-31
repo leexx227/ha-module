@@ -90,13 +90,60 @@ steps:
     htmlReportsOutput: '$(System.DefaultWorkingDirectory)/AzurePipelines'
     testOrClassName: '123'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/TEST-*.xml'
-
 # - task: PublishCodeCoverageResults@1
 #   inputs:
 #     codeCoverageTool: 'Cobertura'
 #     summaryFileLocation: '$(Build.SourcesDirectory)/out/Cobertura.xml'
 #     reportDirectory: '$(Build.SourcesDirectory)/out/AzurePipelines.html'
+
+- task: SqlAzureDacpacDeployment@1
+  inputs:
+    azureSubscription: 'BigCompS-Int1(d50b6b31-cd2f-4c93-83f1-b1acdd32504c)'
+    AuthenticationType: 'server'
+    ServerName: 'ha-module-server.database.windows.net'
+    DatabaseName: 'HighAvailabilityStorage'
+    SqlUsername: 'hpcadmin'
+    SqlPassword: '!!123abc!!123abc'
+    deployType: 'SqlTask'
+    SqlFile: '$(System.DefaultWorkingDirectory)/HighAvailabilityModule.Storage.Server/startup.sql'
+    IpDetectionMethod: 'AutoDetect'
+
+- task: SqlAzureDacpacDeployment@1
+  inputs:
+    azureSubscription: 'BigCompS-Int1(d50b6b31-cd2f-4c93-83f1-b1acdd32504c)'
+    AuthenticationType: 'server'
+    ServerName: 'ha-module-server.database.windows.net'
+    DatabaseName: 'HighAvailabilityStorage'
+    SqlUsername: 'hpcadmin'
+    SqlPassword: '!!123abc!!123abc'
+    deployType: 'SqlTask'
+    SqlFile: '$(System.DefaultWorkingDirectory)/HighAvailabilityModule.UnitTest.SQL/tSQLt.class.sql'
+    IpDetectionMethod: 'AutoDetect'
+
+- task: SqlAzureDacpacDeployment@1
+  inputs:
+    azureSubscription: 'BigCompS-Int1(d50b6b31-cd2f-4c93-83f1-b1acdd32504c)'
+    AuthenticationType: 'server'
+    ServerName: 'ha-module-server.database.windows.net'
+    DatabaseName: 'HighAvailabilityStorage'
+    SqlUsername: 'hpcadmin'
+    SqlPassword: '!!123abc!!123abc'
+    deployType: 'SqlTask'
+    SqlFile: '$(System.DefaultWorkingDirectory)/HighAvailabilityModule.UnitTest.SQL/MembershipSQLStorageUnitTest.sql'
+    IpDetectionMethod: 'AutoDetect'
+
+- task: runtsqltunittests@0
+  inputs:
+    connectionString: 'Server=tcp:ha-module-server.database.windows.net,1433;Initial Catalog=HighAvailabilityStorage;Persist Security Info=False;User ID=hpcadmin;Password=!!123abc!!123abc;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+    queryTimeout: '60'
+    rootOutput: '$(System.DefaultWorkingDirectory)/tSQLt-out'
+    testResultsFileName: 'TEST-Results2.xml'
+    enableCodeCoverage: false
+    coberturaFileName: 'Cobertura2.xml'
+    htmlReportsOutput: '$(System.DefaultWorkingDirectory)/AzurePipelines2'
+    testOrClassName: '123'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
