@@ -134,7 +134,7 @@ steps:
 
 - task: runtsqltunittests@0
   inputs:
-    connectionString: 'Server=tcp:ha-module-server.database.windows.net,1433;Initial Catalog=HighAvailabilityStorage;Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+    connectionString: 'Server=tcp:ha-module-server.database.windows.net,1433;Initial Catalog=HighAvailabilityStorage;Persist Security Info=False;User ID=hpcadmin;Password=!!123abc!!123abc;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
     queryTimeout: '60'
     rootOutput: '$(System.DefaultWorkingDirectory)/tSQLt-out'
     testResultsFileName: 'TEST-Results2.xml'
