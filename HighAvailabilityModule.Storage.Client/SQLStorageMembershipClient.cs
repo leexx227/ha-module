@@ -20,7 +20,7 @@
 
         public TimeSpan OperationTimeout { get; set; }
 
-        private string timeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+        private readonly string timeFormat = "yyyy-MM-dd HH:mm:ss.fff";
 
         private static string DefaultTime = "1753-01-01 12:00:00.000";
 
@@ -38,7 +38,7 @@
         {
             this.OperationTimeout = operationTimeout;
             this.ConStr = (conStr.IndexOf("Connect Timeout") == -1 ? conStr: conStr.Substring(0, conStr.IndexOf("Connect Timeout"))) 
-                + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString(); ;
+                + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
         }
 
         public async Task <(string value, string type)> GetDataEntryAsync(string path, string key)
@@ -109,7 +109,7 @@
 
             if (type == "System.String")
             {
-                return value.ToString();
+                return value;
             }
             else
             {
@@ -246,7 +246,7 @@
 
         public async Task SetDataEntryAsync(string path, string key, string value, string type)
         {
-            DateTime lastOperationTime = await GetDataTimeAsync(path, key);
+            DateTime lastOperationTime = await GetDataTimeAsync(path, key).ConfigureAwait(false);
 
             SqlConnection con = new SqlConnection(this.ConStr);
             string StoredProcedure = SetDataEntrySpName;
@@ -280,37 +280,37 @@
 
         public async Task SetGuid(string path, string key, Guid value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Guid");
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Guid").ConfigureAwait(false);
         }
 
         public async Task SetString(string path, string key, string value)
         {
-            await SetDataEntryAsync(path, key, value, "System.String");
+            await SetDataEntryAsync(path, key, value, "System.String").ConfigureAwait(false);
         }
 
         public async Task SetInt(string path, string key, int value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Int32");
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Int32").ConfigureAwait(false);
         }
 
         public async Task SetLong(string path, string key, long value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Int64");
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Int64").ConfigureAwait(false);
         }
 
         public async Task SetDouble(string path, string key, double value)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Double");
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Double").ConfigureAwait(false);
         }
 
         public async Task SetStringArray(string path, string key, string[] value)
         {
-            await SetDataEntryAsync(path, key, string.Join(",", value), "System.String[]");
+            await SetDataEntryAsync(path, key, string.Join(",", value), "System.String[]").ConfigureAwait(false);
         }
 
         public async Task SetByteArray(string path, string key, byte[] value)
         {
-            await SetDataEntryAsync(path, key, string.Join(",", value), "System.Byte[]");
+            await SetDataEntryAsync(path, key, string.Join(",", value), "System.Byte[]").ConfigureAwait(false);
         }
 
         public async Task DeleteDataEntry(string path, string key)
@@ -407,7 +407,7 @@
                 }
                 finally
                 {
-                    await Task.Delay(interval);
+                    await Task.Delay(interval).ConfigureAwait(false);
                 }
             }
         }
@@ -417,7 +417,7 @@
             Console.WriteLine($"[Monitor] Value: {value}    Type: {type}");
         }
 
-        private bool DataChanged(string value, string type, string lastSeenValue, string lastSeenType)
+        private static bool DataChanged(string value, string type, string lastSeenValue, string lastSeenType)
         {
             return lastSeenValue != value
                 || lastSeenType != type

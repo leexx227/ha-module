@@ -31,8 +31,8 @@
             //SetMethod
             try
             {
-                await client.SetString(path, keyA, value);
-                await client.SetString(path, keyB, value);
+                await client.SetString(path, keyA, value).ConfigureAwait(false);
+                await client.SetString(path, keyB, value).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -41,13 +41,13 @@
             }
             finally
             {
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
             }
 
             //GetMethod
             try
             {
-                var result = await client.TryGetString(path, keyA);
+                var result = await client.TryGetString(path, keyA).ConfigureAwait(false);
                 Console.WriteLine($"Get value: {result}");
             }
             catch (Exception ex)
@@ -57,14 +57,14 @@
             }
             finally
             {
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
             }
 
             //EnumerateMethod
             try
             {
                 List<string> getKey = new List<string>();
-                getKey = await client.EnumerateDataEntryAsync(path);
+                getKey = await client.EnumerateDataEntryAsync(path).ConfigureAwait(false);
                 foreach (string k in getKey)
                 {
                     Console.WriteLine($"Get key: {k}");
@@ -77,14 +77,14 @@
             }
             finally
             {
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
             }
 
 
             //DeleteMethod
             try
             {
-                await client.DeleteDataEntry(path, keyA);
+                await client.DeleteDataEntry(path, keyA).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@
             }
             finally
             {
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
             }
         }
     }
