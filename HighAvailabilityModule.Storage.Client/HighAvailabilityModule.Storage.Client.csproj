@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HighAvailabilityModule.Interface\HighAvailabilityModule.Interface.csproj" />
+    <ProjectReference Include="..\HighAvailabilityModule.util.SQL\HighAvailabilityModule.Util.SQL.csproj" />
   </ItemGroup>
 
 </Project>

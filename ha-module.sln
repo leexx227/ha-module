@@ -30,9 +30,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.E2ET
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.E2ETest.Runner", "HighAvailabilityModule.E2ETest.Runner\HighAvailabilityModule.E2ETest.Runner.csproj", "{A6ACCF49-9343-4D2B-BB36-64D52DD25CBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Storage.Client", "HighAvailabilityModule.Storage.Client\HighAvailabilityModule.Storage.Client.csproj", "{664CE8D6-0BCC-4F44-976B-173515A27D3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailabilityModule.Storage.Client", "HighAvailabilityModule.Storage.Client\HighAvailabilityModule.Storage.Client.csproj", "{664CE8D6-0BCC-4F44-976B-173515A27D3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailablityModule.Storage.Sample.Client", "HighAvailablityModule.Storage.Sample.Client\HighAvailablityModule.Storage.Sample.Client.csproj", "{0C80FCA0-6492-42C1-8593-06B6908F9A5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighAvailablityModule.Storage.Sample.Client", "HighAvailablityModule.Storage.Sample.Client\HighAvailablityModule.Storage.Sample.Client.csproj", "{0C80FCA0-6492-42C1-8593-06B6908F9A5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighAvailabilityModule.Util.SQL", "HighAvailabilityModule.util.SQL\HighAvailabilityModule.Util.SQL.csproj", "{55CED63E-F405-4876-AFFC-ACB3F33FFBD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -96,6 +98,10 @@ Global
 		{0C80FCA0-6492-42C1-8593-06B6908F9A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C80FCA0-6492-42C1-8593-06B6908F9A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C80FCA0-6492-42C1-8593-06B6908F9A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55CED63E-F405-4876-AFFC-ACB3F33FFBD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55CED63E-F405-4876-AFFC-ACB3F33FFBD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55CED63E-F405-4876-AFFC-ACB3F33FFBD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55CED63E-F405-4876-AFFC-ACB3F33FFBD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

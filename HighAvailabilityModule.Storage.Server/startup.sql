@@ -56,7 +56,7 @@ AS
 			ELSE
 				UPDATE dbo.DataTable
 				SET dpath = @dpath, dkey = @dkey, dvalue = @dvalue, dtype = @dtype, timestamp = @now
-				WHERE dpath = @dpath AND dkey = @dkey AND timestamp = @lastOperationTime;
+				WHERE dpath = @dpath AND dkey = @dkey AND (@lastOperationTime = CONVERT(DATETIME, '1753-01-01 12:00:00.000', 21) OR timestamp = @lastOperationTime);
 		COMMIT TRAN
 	END TRY
 	BEGIN CATCH

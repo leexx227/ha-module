@@ -31,8 +31,8 @@
             //SetMethod
             try
             {
-                await client.SetString(path, keyA, value).ConfigureAwait(false);
-                await client.SetString(path, keyB, value).ConfigureAwait(false);
+                await client.SetStringAsync(path, keyA, value).ConfigureAwait(false);
+                await client.SetStringAsync(path, keyB, value).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@
             //GetMethod
             try
             {
-                var result = await client.TryGetString(path, keyA).ConfigureAwait(false);
+                var result = await client.TryGetStringAsync(path, keyA).ConfigureAwait(false);
                 Console.WriteLine($"Get value: {result}");
             }
             catch (Exception ex)
@@ -84,7 +84,7 @@
             //DeleteMethod
             try
             {
-                await client.DeleteDataEntry(path, keyA).ConfigureAwait(false);
+                await client.DeleteDataEntryAsync(path, keyA).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
