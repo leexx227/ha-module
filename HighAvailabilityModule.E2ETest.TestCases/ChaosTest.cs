@@ -13,7 +13,7 @@
 
         private readonly IMembershipClient judge;
 
-        private NetworkConfiguration netconf = new NetworkConfiguration { MessageLostRate = 0.1 };
+        private readonly NetworkConfiguration netconf = new NetworkConfiguration { MessageLostRate = 0.1 };
 
         public ChaosTest(Func<string, string, TimeSpan, IMembershipClient> clientFactory, IMembershipClient judge)
         {
