@@ -22,11 +22,11 @@
                 if (utype == "query")
                 {
                     uname = "-1";
-                    conStr = "0";
                     for (int i = 2; i < args.Length; i++)
                     {
                         AllType.Add(args[i]);
                     }
+                    conStr = args[args.Length - 1];
                 }
                 else
                 {
