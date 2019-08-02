@@ -32,6 +32,10 @@
 
         private const string GetDataTimeSpName = "dbo.GetDataTime";
 
+        private string value;
+
+        private string type;
+
         public SQLStorageMembershipClient(string conStr, TimeSpan operationTimeout)
         {
             this.OperationTimeout = operationTimeout;
@@ -40,8 +44,6 @@
 
         public async Task <(string value, string type)> GetDataEntryAsync(string path, string key)
         {
-            string value;
-            string type;
             SqlConnection con = new SqlConnection(this.ConStr);
             string StoredProcedure = GetDataEntrySpName;
             SqlCommand comStr = new SqlCommand(StoredProcedure, con);
@@ -85,8 +87,8 @@
         public async Task<Guid> TryGetGuidAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.value;
-            string type = getDataEntry.type;
+            value = getDataEntry.value;
+            type = getDataEntry.type;
 
             if (type == "System.Guid")
             {
@@ -101,8 +103,8 @@
         public async Task<string> TryGetStringAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.value;
-            string type = getDataEntry.type;
+            value = getDataEntry.value;
+            type = getDataEntry.type;
 
             if (type == "System.String")
             {
@@ -117,8 +119,8 @@
         public async Task<int> TryGetIntAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.value;
-            string type = getDataEntry.type;
+            value = getDataEntry.value;
+            type = getDataEntry.type;
 
             if (type == "System.Int32")
             {
@@ -133,8 +135,8 @@
         public async Task<long> TryGetLongAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.value;
-            string type = getDataEntry.type;
+            value = getDataEntry.value;
+            type = getDataEntry.type;
 
             if (type == "System.Int64")
             {
@@ -149,8 +151,8 @@
         public async Task<double> TryGetDoubleAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.value;
-            string type = getDataEntry.type;
+            value = getDataEntry.value;
+            type = getDataEntry.type;
 
             if (type == "System.Double")
             {
@@ -165,8 +167,8 @@
         public async Task<string[]> TryGetStringArrayAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.value;
-            string type = getDataEntry.type;
+            value = getDataEntry.value;
+            type = getDataEntry.type;
 
             if (type == "System.String[]")
             {
@@ -181,18 +183,18 @@
         public async Task<byte[]> TryGetByteArrayAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string valueTmp = getDataEntry.value;
-            string type = getDataEntry.type;
+            value = getDataEntry.value;
+            type = getDataEntry.type;
 
             if (type == "System.Byte[]")
             {
-                string[] s = valueTmp.Split(",");
-                byte[] value = new byte[s.Length];
+                string[] s = value.Split(",");
+                byte[] valueByte = new byte[s.Length];
                 for (int i=0; i<s.Length; i++)
                 {
-                    value[i] = byte.Parse(s[i]);
+                    valueByte[i] = byte.Parse(s[i]);
                 }
-                return value;
+                return valueByte;
             }
             else
             {
@@ -391,8 +393,8 @@
                 try
                 {
                     var getEntry = await GetDataEntryAsync(path, key);
-                    string value = getEntry.value;
-                    string type = getEntry.type;
+                    value = getEntry.value;
+                    type = getEntry.type;
 
                     if (DataChanged(value, type, lastSeenValue, lastSeenType))
                     {
