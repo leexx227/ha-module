@@ -53,8 +53,8 @@ BEGIN
 	DECLARE @dkey nvarchar(50);
 	DECLARE @dvalue nvarchar(50);
 	DECLARE @dtype nvarchar(50);
-	DECLARE @lastOperationTime datetime;
 	DECLARE @now datetime;
+	DECLARE @DefaultTime datetime;
 	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
 	(dpath nvarchar(50),
 	dkey nvarchar(50),
@@ -67,9 +67,10 @@ BEGIN
 	SET @dkey = 'A';
 	SET @dvalue = '111';
 	SET @dtype = 'System.String';
-	SET @lastOperationTime = '';
 	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue, @dtype, @lastOperationTime, @now;
+	SET @DefaultTime = CONVERT(DATETIME,'1753-01-01 12:00:00.000',21);
+
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue, @dtype, @DefaultTime, @now;
 	
 	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
 	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue, @dtype, @now);
@@ -94,6 +95,7 @@ BEGIN
 	DECLARE @dtype nvarchar(50);
 	DECLARE @lastOperationTime datetime;
 	DECLARE @now datetime;
+	DECLARE @DefaultTime datetime;
 	DECLARE @TempTable TABLE
 	(lastOperationTime datetime
 	)
@@ -111,8 +113,9 @@ BEGIN
 	SET @dvalue2 = '222';
 	SET @dtype = 'System.String';
 	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
+	SET @DefaultTime = CONVERT(DATETIME,'1753-01-01 12:00:00.000',21);
 
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, '';
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, @DefaultTime;
 	INSERT INTO @TempTable  EXEC dbo.GetDataTime @dpath, @dkey;
 	SELECT @lastOperationTime = lastOperationTime FROM @TempTable;
 	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @lastOperationTime, @now;
@@ -139,6 +142,7 @@ BEGIN
 	DECLARE @dvalue2 nvarchar(50);
 	DECLARE @dtype1 nvarchar(50);
 	DECLARE @now datetime;
+	DECLARE @lastOperationTime datetime;
 	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
 	(dpath nvarchar(50),
 	dkey nvarchar(50),
@@ -153,9 +157,10 @@ BEGIN
 	SET @dvalue2 = '222';
 	SET @dtype1 = 'System.String';
 	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
+	SET @lastOperationTime = CONVERT(DATETIME,'2019-08-02 12:00:00.000',21);
 
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype1, '', @now;
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype1, '', @now;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype1, @lastOperationTime, @now;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype1, @lastOperationTime, @now;
 
 	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
 	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue1, @dtype1, @now);
@@ -181,6 +186,7 @@ BEGIN
 	DECLARE @lastOperationTime datetime;
 	DECLARE @now datetime;
 	DECLARE @newTime datetime;
+	DECLARE @DefaultTime datetime;
 	DECLARE @TempTable TABLE
 	(lastOperationTime datetime
 	);
@@ -199,15 +205,61 @@ BEGIN
 	SET @dtype = 'System.String';
 	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
 	SET @newTime = CONVERT(DATETIME,'2019-08-01 12:00:00.000',21);
+	SET @DefaultTime = CONVERT(DATETIME,'1753-01-01 12:00:00.000',21);
 
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, '';
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, @DefaultTime;
 	INSERT INTO @TempTable EXEC dbo.GetDataTime @dpath, @dkey;
 	SELECT @lastOperationTime = lastOperationTime FROM @TempTable;
 	UPDATE dbo.DataTable SET timestamp = @newTime WHERE dpath = @dpath AND dkey = @dkey;
-	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @now;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @lastOperationTime, @now;
 	
 	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
 	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue1, @dtype, @newTime);
+
+	EXEC tSQLt.AssertEqualsTable MembershipSQLStorageUnitTest_Excepted, MembershipSQLStorageUnitTest_Actual;
+END
+GO
+
+--TestMethod
+USE HighAvailabilityStorage
+GO
+CREATE OR ALTER PROCEDURE MembershipSQLStorageUnitTest.[test SetDataEntry5]
+AS
+BEGIN
+	IF OBJECT_ID('MembershipSQLStorageUnitTest_Excepted') IS NOT NULL
+		DROP TABLE MembershipSQLStorageUnitTest_Excepted;
+	DELETE dbo.DataTable;
+	DECLARE @dpath nvarchar(50);
+	DECLARE @dkey nvarchar(50);
+	DECLARE @dvalue1 nvarchar(50);
+	DECLARE @dvalue2 nvarchar(50);
+	DECLARE @dtype nvarchar(50);
+	DECLARE @now datetime;
+	DECLARE @newTime datetime;
+	DECLARE @DefaultTime datetime;
+	CREATE TABLE MembershipSQLStorageUnitTest_Excepted
+	(dpath nvarchar(50),
+	dkey nvarchar(50),
+	dvalue nvarchar(50),
+	dtype nvarchar(50),
+	timestamp datetime
+	);
+
+	SET @dpath = 'local\hpc';
+	SET @dkey = 'A';
+	SET @dvalue1 = '111';
+	SET @dvalue2 = '222';
+	SET @dtype = 'System.String';
+	SET @now = CONVERT(DATETIME,'2019-07-31 12:00:00.000',21);
+	SET @newTime = CONVERT(DATETIME,'2019-08-01 12:00:00.000',21);
+	SET @DefaultTime = CONVERT(DATETIME,'1753-01-01 12:00:00.000',21);
+
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue1, @dtype, @DefaultTime;
+	UPDATE dbo.DataTable SET timestamp = @newTime WHERE dpath = @dpath AND dkey = @dkey;
+	EXEC dbo.SetDataEntry @dpath, @dkey, @dvalue2, @dtype, @DefaultTime, @now;
+	
+	SELECT dpath, dkey, dvalue, dtype, timestamp INTO MembershipSQLStorageUnitTest_Actual FROM dbo.DataTable WHERE dpath = @dpath AND dkey = @dkey;
+	INSERT INTO MembershipSQLStorageUnitTest_Excepted(dpath, dkey, dvalue, dtype, timestamp) VALUES(@dpath, @dkey, @dvalue2, @dtype, @now);
 
 	EXEC tSQLt.AssertEqualsTable MembershipSQLStorageUnitTest_Excepted, MembershipSQLStorageUnitTest_Actual;
 END

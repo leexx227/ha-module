@@ -2,23 +2,21 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Diagnostics;
 
     using HighAvailabilityModule.Interface;
-    using System.Diagnostics.Tracing;
-    using System.Runtime.CompilerServices;
-    using System.Collections;
-    using System.Runtime.InteropServices;
-    using System.Diagnostics;
+    using HighAvailabilityModule.Util.SQL;
 
     public class SQLStorageMembershipClient : IMembershipStorageClient
     {
         public string ConStr { get; set; }
 
         public TimeSpan OperationTimeout { get; set; }
+
+        private SQLUtil sqlUtil = new SQLUtil();
 
         private readonly string timeFormat = "yyyy-MM-dd HH:mm:ss.fff";
 
@@ -37,8 +35,7 @@
         public SQLStorageMembershipClient(string conStr, TimeSpan operationTimeout)
         {
             this.OperationTimeout = operationTimeout;
-            this.ConStr = (conStr.IndexOf("Connect Timeout") == -1 ? conStr: conStr.Substring(0, conStr.IndexOf("Connect Timeout"))) 
-                + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
+            this.ConStr = this.sqlUtil.GetConStr(conStr, this.OperationTimeout);
         }
 
         public async Task <(string value, string type)> GetDataEntryAsync(string path, string key)
@@ -85,11 +82,11 @@
             }
         }
 
-        public async Task<Guid> TryGetGuid(string path, string key)
+        public async Task<Guid> TryGetGuidAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.Item1;
-            string type = getDataEntry.Item2;
+            string value = getDataEntry.value;
+            string type = getDataEntry.type;
 
             if (type == "System.Guid")
             {
@@ -101,11 +98,11 @@
             }
         }
 
-        public async Task<string> TryGetString(string path, string key)
+        public async Task<string> TryGetStringAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.Item1;
-            string type = getDataEntry.Item2;
+            string value = getDataEntry.value;
+            string type = getDataEntry.type;
 
             if (type == "System.String")
             {
@@ -117,11 +114,11 @@
             }
         }
 
-        public async Task<int> TryGetInt(string path, string key)
+        public async Task<int> TryGetIntAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.Item1;
-            string type = getDataEntry.Item2;
+            string value = getDataEntry.value;
+            string type = getDataEntry.type;
 
             if (type == "System.Int32")
             {
@@ -133,11 +130,11 @@
             }
         }
 
-        public async Task<long> TryGetLong(string path, string key)
+        public async Task<long> TryGetLongAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.Item1;
-            string type = getDataEntry.Item2;
+            string value = getDataEntry.value;
+            string type = getDataEntry.type;
 
             if (type == "System.Int64")
             {
@@ -149,11 +146,11 @@
             }
         }
 
-        public async Task<double> TryGetDouble(string path, string key)
+        public async Task<double> TryGetDoubleAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.Item1;
-            string type = getDataEntry.Item2;
+            string value = getDataEntry.value;
+            string type = getDataEntry.type;
 
             if (type == "System.Double")
             {
@@ -165,11 +162,11 @@
             }
         }
 
-        public async Task<string[]> TryGetStringArray(string path, string key)
+        public async Task<string[]> TryGetStringArrayAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string value = getDataEntry.Item1;
-            string type = getDataEntry.Item2;
+            string value = getDataEntry.value;
+            string type = getDataEntry.type;
 
             if (type == "System.String[]")
             {
@@ -181,11 +178,11 @@
             }
         }
 
-        public async Task<byte[]> TryGetByteArray(string path, string key)
+        public async Task<byte[]> TryGetByteArrayAsync(string path, string key)
         {
             var getDataEntry = await GetDataEntryAsync(path, key);
-            string valueTmp = getDataEntry.Item1;
-            string type = getDataEntry.Item2;
+            string valueTmp = getDataEntry.value;
+            string type = getDataEntry.type;
 
             if (type == "System.Byte[]")
             {
@@ -244,9 +241,13 @@
             }
         }
 
-        public async Task SetDataEntryAsync(string path, string key, string value, string type)
+        public async Task SetDataEntryAsync(string path, string key, string value, string type, bool forceWrite = false)
         {
-            DateTime lastOperationTime = await GetDataTimeAsync(path, key).ConfigureAwait(false);
+            DateTime lastOperationTime = Convert.ToDateTime(Convert.ToDateTime(DefaultTime).ToString(this.timeFormat));
+            if (forceWrite == false)
+            {
+                lastOperationTime = await GetDataTimeAsync(path, key).ConfigureAwait(false);
+            }
 
             SqlConnection con = new SqlConnection(this.ConStr);
             string StoredProcedure = SetDataEntrySpName;
@@ -278,42 +279,42 @@
             }
         }
 
-        public async Task SetGuid(string path, string key, Guid value)
+        public async Task SetGuidAsync(string path, string key, Guid value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Guid").ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Guid", forceWrite).ConfigureAwait(false);
         }
 
-        public async Task SetString(string path, string key, string value)
+        public async Task SetStringAsync(string path, string key, string value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, value, "System.String").ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, value, "System.String", forceWrite).ConfigureAwait(false);
         }
 
-        public async Task SetInt(string path, string key, int value)
+        public async Task SetIntAsync(string path, string key, int value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Int32").ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Int32", forceWrite).ConfigureAwait(false);
         }
 
-        public async Task SetLong(string path, string key, long value)
+        public async Task SetLongAsync(string path, string key, long value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Int64").ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Int64", forceWrite).ConfigureAwait(false);
         }
 
-        public async Task SetDouble(string path, string key, double value)
+        public async Task SetDoubleAsync(string path, string key, double value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, value.ToString(), "System.Double").ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, value.ToString(), "System.Double", forceWrite).ConfigureAwait(false);
         }
 
-        public async Task SetStringArray(string path, string key, string[] value)
+        public async Task SetStringArrayAsync(string path, string key, string[] value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, string.Join(",", value), "System.String[]").ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, string.Join(",", value), "System.String[]", forceWrite).ConfigureAwait(false);
         }
 
-        public async Task SetByteArray(string path, string key, byte[] value)
+        public async Task SetByteArrayAsync(string path, string key, byte[] value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, string.Join(",", value), "System.Byte[]").ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, string.Join(",", value), "System.Byte[]", forceWrite).ConfigureAwait(false);
         }
 
-        public async Task DeleteDataEntry(string path, string key)
+        public async Task DeleteDataEntryAsync(string path, string key)
         {
             SqlConnection con = new SqlConnection(this.ConStr);
             string StoredProcedure = DeleteDataEntrySpName;
@@ -390,8 +391,8 @@
                 try
                 {
                     var getEntry = await GetDataEntryAsync(path, key);
-                    string value = getEntry.Item1;
-                    string type = getEntry.Item2;
+                    string value = getEntry.value;
+                    string type = getEntry.type;
 
                     if (DataChanged(value, type, lastSeenValue, lastSeenType))
                     {

@@ -10,23 +10,23 @@
         TimeSpan OperationTimeout { get; set; }
 
         Task<(string value, string type)> GetDataEntryAsync(string path, string key);
-        Task<Guid> TryGetGuid(string path, string key);
-        Task<string> TryGetString(string path, string key);
-        Task<int> TryGetInt(string path, string key);
-        Task<long> TryGetLong(string path, string key);
-        Task<double> TryGetDouble(string path, string key);
-        Task<string[]> TryGetStringArray(string path, string key);
-        Task<byte[]> TryGetByteArray(string path, string key);
+        Task<Guid> TryGetGuidAsync(string path, string key);
+        Task<string> TryGetStringAsync(string path, string key);
+        Task<int> TryGetIntAsync(string path, string key);
+        Task<long> TryGetLongAsync(string path, string key);
+        Task<double> TryGetDoubleAsync(string path, string key);
+        Task<string[]> TryGetStringArrayAsync(string path, string key);
+        Task<byte[]> TryGetByteArrayAsync(string path, string key);
 
-        Task SetGuid(string path, string key, Guid value);
-        Task SetString(string path, string key, string value);
-        Task SetInt(string path, string key, int value);
-        Task SetLong(string path, string key, long value);
-        Task SetDouble(string path, string key, double value);
-        Task SetStringArray(string path, string key, string[] value);
-        Task SetByteArray(string path, string key, byte[] value);
+        Task SetGuidAsync(string path, string key, Guid value, bool forceWrite);
+        Task SetStringAsync(string path, string key, string value, bool forceWrite);
+        Task SetIntAsync(string path, string key, int value, bool forceWrite);
+        Task SetLongAsync(string path, string key, long value, bool forceWrite);
+        Task SetDoubleAsync(string path, string key, double value, bool forceWrite);
+        Task SetStringArrayAsync(string path, string key, string[] value, bool forceWrite);
+        Task SetByteArrayAsync(string path, string key, byte[] value, bool forceWrite);
 
-        Task DeleteDataEntry(string path, string key);
+        Task DeleteDataEntryAsync(string path, string key);
 
         Task<List<string>> EnumerateDataEntryAsync(string path);
 
