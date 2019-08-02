@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class HeartBeatEntry
+    public class HeartBeatEntry : IEquatable<HeartBeatEntry>
     {
         public HeartBeatEntry(string uuid, string utype, string uname, DateTime timeStamp)
         {
@@ -26,23 +26,53 @@
 
         public static HeartBeatEntry Empty { get; } = new HeartBeatEntry(string.Empty, string.Empty, string.Empty, Convert.ToDateTime(DefaultTime));
 
-        public override bool Equals(object obj)
+        public override string ToString() => $"{this.Uuid} - {this.Utype} - {this.Uname} - {this.TimeStamp}";
+
+        public bool Equals(HeartBeatEntry other)
         {
-            if (obj is HeartBeatEntry that)
-            {
-                return this.Uuid == that.Uuid && this.Utype == that.Utype && this.Uname == that.Uname && this.TimeStamp == that.TimeStamp;
-            }
-            else
+            if (ReferenceEquals(null, other))
             {
                 return false;
             }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(this.Uuid, other.Uuid) && string.Equals(this.Utype, other.Utype) && string.Equals(this.Uname, other.Uname) && this.TimeStamp.Equals(other.TimeStamp);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return this.Equals((HeartBeatEntry)obj);
         }
 
         public override int GetHashCode()
         {
-            return this.Uuid.GetHashCode() ^ this.TimeStamp.GetHashCode();
+            unchecked
+            {
+                var hashCode = (this.Uuid != null ? this.Uuid.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (this.Utype != null ? this.Utype.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (this.Uname != null ? this.Uname.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ this.TimeStamp.GetHashCode();
+                return hashCode;
+            }
         }
-
-        public override string ToString() => $"{this.Uuid} - {this.Utype} - {this.Uname} - {this.TimeStamp}";
     }
 }
