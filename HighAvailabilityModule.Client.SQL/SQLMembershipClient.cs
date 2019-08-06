@@ -6,6 +6,7 @@
     using System.Data.SqlClient;
 
     using HighAvailabilityModule.Interface;
+    using HighAvailabilityModule.Util.SQL;
 
     public class SQLMembershipClient: IMembershipClient
     {
@@ -18,6 +19,8 @@
         public TimeSpan OperationTimeout { get; set; }
 
         public string ConStr { get; set; }
+
+        private SQLUtil sqlUtil = new SQLUtil();
 
         private string timeFormat = "yyyy-MM-dd HH:mm:ss.fff";
 
@@ -35,14 +38,7 @@
 
         public SQLMembershipClient(string conStr)
         {
-            if (conStr.IndexOf("Connect Timeout") == -1)
-            {
-                this.ConStr = conStr + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
-            }
-            else
-            {
-                this.ConStr = conStr.Substring(0, conStr.IndexOf("Connect Timeout")) + "Connect Timeout=" + Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds)).ToString();
-            }
+            this.ConStr = this.sqlUtil.GetConStr(conStr, this.OperationTimeout);
         }
 
         public static SQLMembershipClient CreateNew(string utype, string uname, TimeSpan operationTimeout, string conStr) => new SQLMembershipClient(utype, uname, operationTimeout, conStr);
