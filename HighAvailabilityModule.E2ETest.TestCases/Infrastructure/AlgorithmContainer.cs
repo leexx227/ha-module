@@ -3,6 +3,7 @@
 namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
 
     using HighAvailabilityModule.Algorithm;
@@ -44,6 +45,7 @@ namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
         public async Task CrashRestart()
         {
             Console.WriteLine($"Fail instance {this.Algo.Dump()} ");
+            Trace.TraceInformation($"[{DateTime.UtcNow:O}] Fail instance {this.Algo.Dump()}");
             this.Algo.Stop();
             await Task.Delay(1000);
             this.BuildAlgoInstance();
