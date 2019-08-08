@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Algorithm
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Algorithm
 {
     using System;
     using System.Diagnostics;

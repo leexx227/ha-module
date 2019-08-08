@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Client.SQL
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Client.SQL
 {
     using System;
     using System.Threading.Tasks;

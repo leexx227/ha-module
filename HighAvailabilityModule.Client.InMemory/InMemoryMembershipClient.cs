@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Client.InMemory
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Client.InMemory
 {
     using System;
     using System.Threading.Tasks;

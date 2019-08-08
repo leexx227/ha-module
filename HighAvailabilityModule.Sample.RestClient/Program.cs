@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Sample.RestClient
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Sample.RestClient
 {
     using System;
     using System.Collections;

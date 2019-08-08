@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Server.InMemory
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Server.InMemory
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
 {
     using System;
     using System.Threading.Tasks;

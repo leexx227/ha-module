@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.E2ETest.Runner
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.E2ETest.Runner
 {
     using System;
     using System.Threading.Tasks;

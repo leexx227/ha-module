@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Server.Rest.Controllers
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Server.Rest.Controllers
 {
     using System.Threading.Tasks;
 

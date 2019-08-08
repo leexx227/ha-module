@@ -1,4 +1,6 @@
-﻿namespace HighAvailablityModule.Storage.Sample.Client
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailablityModule.Storage.Sample.Client
 {
     using System;
     using System.Collections.Generic;

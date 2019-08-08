@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.E2ETest.TestCases
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.E2ETest.TestCases
 {
     using System;
     using System.Collections.Generic;
