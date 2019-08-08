@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Client.Rest
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Client.Rest
 {
     using System;
     using System.Collections.Generic;

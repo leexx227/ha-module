@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Sample.SQLClient
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Sample.SQLClient
 {
     using System;
     using System.Collections;

@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.E2ETest.TestCases.Infrastructure
 {
     using System;
     using System.Collections.Generic;
@@ -52,17 +54,31 @@
 
         public void CheckLiveness(HeartBeatEntry entry)
         {
+            if (lastError != null)
+            {
+                Trace.TraceInformation($"Client Type: {this.Utype}    Entry Uuid:    {entry.Uuid}    lastError.Uuid: {this.lastError.Value.entry.Uuid}");
+            }
+            else
+            {
+                Trace.TraceInformation($"Client Type: {this.Utype}    Entry Uuid:    {entry.Uuid}    lastError.Uuid: null");
+            }
             if (!this.GetLivingClientIds().Contains(entry.Uuid))
             {
                 if (this.lastError == null || this.lastError.Value.entry.Uuid != entry.Uuid)
                 {
                     this.lastError = (entry, DateTime.UtcNow);
                 }
-                else if (DateTime.UtcNow - this.lastError.Value.queryTime > (this.Interval + this.Timeout)) 
+                else if (DateTime.UtcNow - this.lastError.Value.queryTime > (2 * this.Timeout)) 
                 {
-                    Trace.TraceError("Liveness violation detected.");
-                    throw new InvalidOperationException("Liveness violation detected.");
+                    string ExceptionID = Guid.NewGuid().ToString();
+                    Trace.TraceError($"Client Type{this.Utype}    [{ExceptionID}]Liveness violation detected.");
+                    Trace.TraceInformation($"UtcNow: {DateTime.UtcNow:O}    lastError.queryTime: {this.lastError.Value.queryTime:O}");
+                    throw new InvalidOperationException($"[{ExceptionID}]Liveness violation detected.");
                 }
+            }
+            else
+            {
+                this.lastError = null;
             }
         }
 
@@ -96,8 +112,8 @@
                 {
                     var entry = await this.judge.GetHeartBeatEntryAsync(this.Utype);
                     var livingClients = this.GetLivingClientIds();
-                    Trace.TraceInformation($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} ");
-                    Console.WriteLine($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} ");
+                    Trace.TraceInformation($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} Client Type: {this.Utype}");
+                    Console.WriteLine($"Healthy:{livingClients.Contains(entry.Uuid)}, livingClients: {string.Join(",", livingClients)} Client Type: {this.Utype}");
 
                     this.CheckLiveness(entry);
                 }
@@ -106,6 +122,7 @@
                 {
                     Trace.TraceWarning(ex.ToString());
                     Console.WriteLine(ex.ToString());
+                    throw;
                 }
                 finally
                 {

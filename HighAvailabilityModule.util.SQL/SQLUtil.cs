@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Util.SQL
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Util.SQL
 {
     using System;
 

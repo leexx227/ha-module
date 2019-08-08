@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.Interface
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.Interface
 {
     using System;
     public class HeartBeatEntryDTO

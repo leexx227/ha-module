@@ -1,4 +1,6 @@
-﻿namespace HighAvailabilityModule.E2ETest.Runner
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+namespace HighAvailabilityModule.E2ETest.Runner
 {
     using System;
     using System.Threading.Tasks;
@@ -18,6 +20,8 @@
             string testType;
             string conStr;
 
+            int typeCount = 10;
+
             IMembershipClient judge;
             Func<string, string, TimeSpan, IMembershipClient> clientFactory;
 
@@ -27,6 +31,7 @@
                 Console.WriteLine("Args: ");
                 Console.WriteLine("Client Type:      rest/sql");
                 Console.WriteLine("Test Type:        basic/chaos");
+                Console.WriteLine("Utype:            string");
                 Console.WriteLine("Connected String (required only for sql client)");
                 return;
             }
@@ -78,13 +83,25 @@
 
             if (testType == "basic")
             {
-                var basictest = new BasicTest(clientFactory, judge);
-                await basictest.Start();
+                Task[] tasks = new Task[typeCount];
+                for (int i = 0; i < typeCount; i++)
+                {
+                    string type = ((char)('A' + i)).ToString();
+                    var basictest = new BasicTest(clientFactory, judge);
+                    tasks[i] = basictest.Start(type);
+                }
+                await Task.WhenAny(tasks);
             }
             else if (testType == "chaos")
             {
-                var chaostest = new ChaosTest(clientFactory, judge);
-                await chaostest.Start();
+                Task[] tasks = new Task[typeCount];
+                for (int i = 0; i < typeCount; i++)
+                {
+                    string type = ((char)('A' + i)).ToString();
+                    var basictest = new ChaosTest(clientFactory, judge);
+                    tasks[i] = basictest.Start(type);
+                }
+                await Task.WhenAny(tasks);
             }
             else
             {
