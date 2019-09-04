@@ -30,6 +30,8 @@ namespace HighAvailabilityModule.Client.SQL
 
         private const string GetHeartBeatSpName = "dbo.GetHeartBeat";
 
+        private const string GetParameterSpName = "dbo.GetParameter";
+
         public SQLMembershipClient(string utype, string uname, TimeSpan operationTimeout, string conStr) : this(conStr)
         {
             this.Uuid = Guid.NewGuid().ToString();
@@ -110,6 +112,45 @@ namespace HighAvailabilityModule.Client.SQL
             catch (Exception ex)
             {
                 Console.WriteLine($"[{this.Uuid}] Error occured when getting heartbeat entry: {ex.ToString()}");
+                throw;
+            }
+            finally
+            {
+                con.Close();
+                con.Dispose();
+                comStr.Dispose();
+            }
+        }
+
+        public async Task<int> GetParameterAsync(string parameterName)
+        {
+            int res;
+            SqlConnection con = new SqlConnection(this.ConStr);
+            string StoredProcedure = GetParameterSpName;
+            SqlCommand comStr = new SqlCommand(StoredProcedure, con);
+            comStr.CommandType = CommandType.StoredProcedure;
+            comStr.CommandTimeout = Convert.ToInt32(Math.Ceiling(this.OperationTimeout.TotalSeconds));
+
+            comStr.Parameters.Add("@parameterName", SqlDbType.NVarChar).Value = parameterName;
+
+            try
+            {
+                await con.OpenAsync();
+                SqlDataReader ReturnedEntry = await comStr.ExecuteReaderAsync();
+                if (ReturnedEntry.HasRows)
+                {
+                    ReturnedEntry.Read();
+                    res = (int)ReturnedEntry[0];
+                }
+                else
+                {
+                    res = default(int);
+                }
+                return res;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[{this.Uuid}] Error occured when getting parameter: {ex.ToString()}");
                 throw;
             }
             finally
