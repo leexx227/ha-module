@@ -30,17 +30,22 @@ namespace HighAvailabilityModule.Client.SQL
 
         private const string GetHeartBeatSpName = "dbo.GetHeartBeat";
 
-        public SQLMembershipClient(string utype, string uname, TimeSpan operationTimeout, string conStr) : this(conStr)
+        public SQLMembershipClient(string utype, string uname, TimeSpan operationTimeout, string conStr) : this(operationTimeout, conStr)
         {
             this.Uuid = Guid.NewGuid().ToString();
             this.Utype = utype;
             this.Uname = uname;
-            this.OperationTimeout = operationTimeout;
         }
 
         public SQLMembershipClient(string conStr)
         {
             this.ConStr = this.sqlUtil.GetConStr(conStr, this.OperationTimeout);
+        }
+
+        public SQLMembershipClient(TimeSpan operationTimeout, string conStr)
+        {
+            this.OperationTimeout = operationTimeout;
+            this.ConStr = this.sqlUtil.GetConStr(conStr, operationTimeout);
         }
 
         public static SQLMembershipClient CreateNew(string utype, string uname, TimeSpan operationTimeout, string conStr) => new SQLMembershipClient(utype, uname, operationTimeout, conStr);
