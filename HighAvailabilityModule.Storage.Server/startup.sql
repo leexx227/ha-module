@@ -2,9 +2,9 @@ IF OBJECT_ID('DataTable') IS NOT NULL
 	DROP TABLE DataTable;
 GO
 CREATE TABLE DataTable
-(dpath nvarchar(50) NOT NULL,
+(dpath nvarchar(200) NOT NULL,
 dkey nvarchar(50) NOT NULL,
-dvalue nvarchar(50),
+dvalue nvarchar(200),
 dtype nvarchar(50),
 timestamp datetime
 );
@@ -16,7 +16,7 @@ IF OBJECT_ID('GetDataEntry') IS NOT NULL
 	DROP PROCEDURE GetDataEntry;
 GO
 CREATE PROCEDURE GetDataEntry
-	@dpath nvarchar(50),
+	@dpath nvarchar(200),
 	@dkey nvarchar(50)
 AS
 	SET NOCOUNT ON
@@ -27,7 +27,7 @@ IF OBJECT_ID('GetDataTime') IS NOT NULL
 	DROP PROCEDURE GetDataTime;
 GO
 CREATE PROCEDURE GetDataTime
-	@dpath nvarchar(50),
+	@dpath nvarchar(200),
 	@dkey nvarchar(50)
 AS
 	SET NOCOUNT ON
@@ -38,9 +38,9 @@ IF OBJECT_ID('SetDataEntry') IS NOT NULL
 	DROP PROCEDURE SetDataEntry;
 GO
 CREATE PROCEDURE SetDataEntry
-	@dpath nvarchar(50),
+	@dpath nvarchar(200),
 	@dkey nvarchar(50),
-	@dvalue nvarchar(50),
+	@dvalue nvarchar(200),
 	@dtype nvarchar(50),
 	@lastOperationTime datetime,
 	@now datetime = NULL
@@ -68,7 +68,7 @@ IF OBJECT_ID('DeleteDataEntry') IS NOT NULL
 	DROP PROCEDURE DeleteDataEntry;
 GO
 CREATE PROCEDURE DeleteDataEntry
-	@dpath nvarchar(50),
+	@dpath nvarchar(200),
 	@dkey nvarchar(50)
 AS
 	SET NOCOUNT ON
@@ -79,7 +79,7 @@ IF OBJECT_ID('EnumerateDataEntry') IS NOT NULL
 	DROP PROCEDURE EnumerateDataEntry;
 GO
 CREATE PROCEDURE EnumerateDataEntry
-	@dpath nvarchar(50)
+	@dpath nvarchar(200)
 AS
 	SET NOCOUNT ON
 	SELECT dkey FROM dbo.DataTable WHERE dpath = @dpath;
