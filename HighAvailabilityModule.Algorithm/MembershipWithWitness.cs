@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-namespace HighAvailabilityModule.Algorithm
+namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
 {
     using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
 
-    using HighAvailabilityModule.Interface;
+    using Microsoft.Hpc.HighAvailabilityModule.Interface;
 
     public class MembershipWithWitness
     {
@@ -79,7 +79,7 @@ namespace HighAvailabilityModule.Algorithm
             Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Algorithm stopped");
         }
 
-        internal async Task GetPrimaryAsync()
+        public async Task GetPrimaryAsync()
         {
             var token = this.AlgorithmCancellationToken;
             while (!this.RunningAsPrimary(DateTime.UtcNow) || !AffiliatedASPrimary())
@@ -97,7 +97,7 @@ namespace HighAvailabilityModule.Algorithm
             }
         }
 
-        internal async Task CheckPrimaryAsync(DateTime now)
+        public async Task CheckPrimaryAsync(DateTime now)
         {
             try
             {
@@ -120,7 +120,7 @@ namespace HighAvailabilityModule.Algorithm
             }
         }
 
-        internal async Task HeartBeatAsPrimaryAsync()
+        public async Task HeartBeatAsPrimaryAsync()
         {
             if (this.lastSeenHeartBeat.Entry == null)
             {
@@ -144,7 +144,7 @@ namespace HighAvailabilityModule.Algorithm
         /// <summary>
         /// Checks if current process is primary process
         /// </summary>
-        internal async Task KeepPrimaryAsync()
+        public async Task KeepPrimaryAsync()
         {
             var token = this.AlgorithmCancellationToken;
             while (this.RunningAsPrimary(DateTime.UtcNow) && AffiliatedASPrimary())
@@ -164,7 +164,7 @@ namespace HighAvailabilityModule.Algorithm
 
         private bool AffiliatedPrimaryUp => this.lastSeenAffiliated != default && !this.lastSeenAffiliated.Entry.IsEmpty;
 
-        internal bool RunningAsPrimary(DateTime now)
+        public bool RunningAsPrimary(DateTime now)
         {
             var primary = this.PrimaryUp && this.lastSeenHeartBeat.Entry.Uuid == this.Uuid && now - this.lastSeenHeartBeat.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval);
             if (!primary)
@@ -174,7 +174,7 @@ namespace HighAvailabilityModule.Algorithm
             return primary;
         }
 
-        internal bool AffiliatedASPrimary()
+        public bool AffiliatedASPrimary()
         {
             var affiliatedPrimary = this.AffiliatedType == string.Empty || (this.AffiliatedPrimaryUp && this.lastSeenAffiliated.Entry.Uname.ToLower() == this.Uname.ToLower());
             if (!affiliatedPrimary)
@@ -184,7 +184,7 @@ namespace HighAvailabilityModule.Algorithm
             return affiliatedPrimary;
         }
 
-        internal async Task CheckAffiliatedAsync(DateTime now)
+        public async Task CheckAffiliatedAsync(DateTime now)
         {
             try
             {
