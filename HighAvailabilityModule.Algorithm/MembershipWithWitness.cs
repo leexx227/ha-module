@@ -79,17 +79,17 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
             Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Algorithm stopped");
         }
 
-        public async Task GetPrimaryAsync()
+        internal async Task GetPrimaryAsync()
         {
             var token = this.AlgorithmCancellationToken;
-            while (!this.RunningAsPrimary(DateTime.UtcNow) || !AffiliatedASPrimary())
+            while (!this.RunningAsPrimary(DateTime.UtcNow) || !AffiliatedASPrimary(DateTime.UtcNow))
             {
                 token.ThrowIfCancellationRequested();
                 await Task.Delay(this.HeartBeatInterval, token);
                 await this.CheckPrimaryAsync(DateTime.UtcNow).ConfigureAwait(false);
                 await this.CheckAffiliatedAsync(DateTime.UtcNow).ConfigureAwait(false);
 
-                if (!this.PrimaryUp && this.AffiliatedASPrimary())
+                if (!this.PrimaryUp && this.AffiliatedASPrimary(DateTime.UtcNow))
                 {
                     Trace.TraceWarning($"[{DateTime.UtcNow:O}][Protocol][{this.Uuid}] Primary down");
                     await this.HeartBeatAsPrimaryAsync().ConfigureAwait(false);
@@ -97,7 +97,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
             }
         }
 
-        public async Task CheckPrimaryAsync(DateTime now)
+        internal async Task CheckPrimaryAsync(DateTime now)
         {
             try
             {
@@ -120,7 +120,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
             }
         }
 
-        public async Task HeartBeatAsPrimaryAsync()
+        internal async Task HeartBeatAsPrimaryAsync()
         {
             if (this.lastSeenHeartBeat.Entry == null)
             {
@@ -144,10 +144,10 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
         /// <summary>
         /// Checks if current process is primary process
         /// </summary>
-        public async Task KeepPrimaryAsync()
+        internal async Task KeepPrimaryAsync()
         {
             var token = this.AlgorithmCancellationToken;
-            while (this.RunningAsPrimary(DateTime.UtcNow) && AffiliatedASPrimary())
+            while (this.RunningAsPrimary(DateTime.UtcNow) && AffiliatedASPrimary(DateTime.UtcNow))
             {
                 token.ThrowIfCancellationRequested();
 #pragma warning disable 4014
@@ -164,7 +164,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
 
         private bool AffiliatedPrimaryUp => this.lastSeenAffiliated != default && !this.lastSeenAffiliated.Entry.IsEmpty;
 
-        public bool RunningAsPrimary(DateTime now)
+        internal bool RunningAsPrimary(DateTime now)
         {
             var primary = this.PrimaryUp && this.lastSeenHeartBeat.Entry.Uuid == this.Uuid && now - this.lastSeenHeartBeat.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval);
             if (!primary)
@@ -174,9 +174,9 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
             return primary;
         }
 
-        public bool AffiliatedASPrimary()
+        internal bool AffiliatedASPrimary(DateTime now)
         {
-            var affiliatedPrimary = this.AffiliatedType == string.Empty || (this.AffiliatedPrimaryUp && this.lastSeenAffiliated.Entry.Uname.ToLower() == this.Uname.ToLower());
+            var affiliatedPrimary = this.AffiliatedType == string.Empty || (this.AffiliatedPrimaryUp && this.lastSeenAffiliated.Entry.Uname.ToLower() == this.Uname.ToLower() && now - this.lastSeenAffiliated.QueryTime < (this.HeartBeatTimeout - this.HeartBeatInterval));
             if (!affiliatedPrimary)
             {
                 Trace.TraceInformation($"[{DateTime.UtcNow:O}][Protocol] Affiliated service is running on another machine. {this.Dump()}.");
@@ -184,7 +184,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Algorithm
             return affiliatedPrimary;
         }
 
-        public async Task CheckAffiliatedAsync(DateTime now)
+        internal async Task CheckAffiliatedAsync(DateTime now)
         {
             try
             {
