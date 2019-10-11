@@ -34,6 +34,8 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
         private const string GetDataTimeSpName = "dbo.GetDataTime";
 
+        public static readonly TraceSource ts = new TraceSource("Microsoft.Hpc.HighAvailablity.SQLStorageMembershipClient");
+
         private string value;
 
         private string type;
@@ -75,7 +77,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"Error occured when getting data entry: {ex.ToString()}");
+                ts.TraceEvent(TraceEventType.Error, 0, $"Error occured when getting data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when getting data entry: {ex.ToString()}");
             }
             finally
@@ -83,6 +85,43 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
                 con.Close();
                 con.Dispose();
                 comStr.Dispose();
+            }
+        }
+
+        public object TryParseDataEntry(string value, string type)
+        {
+            if (type == "System.Guid")
+            {
+                return Guid.Parse(value);
+            }
+            else if (type == "System.String")
+            {
+                return value;
+            }
+            else if (type == "System.Int32")
+            {
+                return Int32.Parse(value);
+            }
+            else if (type == "System.Int64")
+            {
+                return Int64.Parse(value);
+            }
+            else if (type == "System.Double")
+            {
+                return Double.Parse(value);
+            }
+            else if (type == "System.String[]")
+            {
+                return value.Split(",".ToCharArray());
+            }
+            else if (type == "System.Byte[]")
+            {
+                return System.Text.Encoding.UTF8.GetBytes(value);
+            }
+            else
+            {
+                ts.TraceEvent(TraceEventType.Error, 0, $"Input type is not valid: {type}.");
+                throw new InvalidOperationException("Input type is not valid.");
             }
         }
 
@@ -94,7 +133,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
             if (type == "System.Guid")
             {
-                return Guid.Parse(value);
+                return (Guid)TryParseDataEntry(value, type);
             }
             else if (type == string.Empty)
             {
@@ -114,7 +153,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
             if (type == "System.String")
             {
-                return value;
+                return (string)TryParseDataEntry(value, type);
             }
             else if(type == string.Empty)
             {
@@ -134,7 +173,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
             if (type == "System.Int32")
             {
-                return Int32.Parse(value); 
+                return (int)TryParseDataEntry(value, type); 
             }
             else if (type == string.Empty)
             {
@@ -154,7 +193,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
             if (type == "System.Int64")
             {
-                return Int64.Parse(value);
+                return (long)TryParseDataEntry(value, type);
             }
             else if (type == string.Empty)
             {
@@ -174,7 +213,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
             if (type == "System.Double")
             {
-                return Double.Parse(value);
+                return (double)TryParseDataEntry(value, type);
             }
             else if (type == string.Empty)
             {
@@ -194,7 +233,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
             if (type == "System.String[]")
             {
-                return value.Split(",".ToCharArray());
+                return (string[])TryParseDataEntry(value, type);
             }
             else if (type == string.Empty)
             {
@@ -214,13 +253,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
             if (type == "System.Byte[]")
             {
-                string[] s = value.Split(",".ToCharArray());
-                byte[] valueByte = new byte[s.Length];
-                for (int i=0; i<s.Length; i++)
-                {
-                    valueByte[i] = byte.Parse(s[i]);
-                }
-                return valueByte;
+                return (byte[])TryParseDataEntry(value, type);
             }
             else if (type == string.Empty)
             {
@@ -300,7 +333,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"Error occured when setting data entry: {ex.ToString()}");
+                ts.TraceEvent(TraceEventType.Error, 0, $"Error occured when setting data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when setting data entry: {ex.ToString()}");
             }
             finally
@@ -343,7 +376,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
 
         public async Task SetByteArrayAsync(string path, string key, byte[] value, bool forceWrite = false)
         {
-            await SetDataEntryAsync(path, key, string.Join(",", value), "System.Byte[]", forceWrite).ConfigureAwait(false);
+            await SetDataEntryAsync(path, key, System.Text.Encoding.UTF8.GetString(value), "System.Byte[]", forceWrite).ConfigureAwait(false);
         }
 
         public async Task DeleteDataEntryAsync(string path, string key)
@@ -364,7 +397,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"Error occured when deleting data entry: {ex.ToString()}");
+                ts.TraceEvent(TraceEventType.Error, 0, $"Error occured when deleting data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when deleting data entry: {ex.ToString()}");
             }
             finally
@@ -403,7 +436,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"Error occured when enumerating data entry: {ex.ToString()}");
+                ts.TraceEvent(TraceEventType.Error, 0, $"Error occured when enumerating data entry: {ex.ToString()}");
                 throw new InvalidOperationException($"Error occured when enumerating data entry: {ex.ToString()}");
             }
             finally
@@ -435,7 +468,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceError($"Error occured {ex.ToString()}");
+                    ts.TraceEvent(TraceEventType.Error, 0, $"Error occured {ex.ToString()}");
                     throw;
                 }
                 finally
@@ -458,7 +491,7 @@ namespace Microsoft.Hpc.HighAvailabilityModule.Storage.Client
                 || (lastSeenType == string.Empty && type != string.Empty);
         }
 
-        class EmptyValueException : ApplicationException
+        public class EmptyValueException : ApplicationException
         {
             public EmptyValueException(string message) : base(message) { }
 
